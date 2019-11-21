@@ -26,7 +26,7 @@ The default keymap prefix is `C-c C-a`.
 The following keybindings are currently available.
 
 | Function                | Keymap      |
-| --------                | :------–--: |
+| ---                     | ---         |
 | Compile                 | `C-c C-a c` |
 | Upload                  | `C-c C-a u` |
 | Compile and Upload      | `C-c C-a b` |
