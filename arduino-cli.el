@@ -3,8 +3,9 @@
 ;; Copyright © 2019
 
 ;; Author: Love Lagerkvist
-;; URL: https://github.com/motform/emacs-arduino-cli
+;; URL: https://github.com/motform/arduino-cli-mode
 ;; Version: 0.1.0
+;; Package-Requires: ((emacs "25"))
 ;; Created: 2019-11-16
 ;; Keywords: extensions processes arduino
 
@@ -38,9 +39,11 @@
 
 ;;; Code:
 
+(require 'compile)
 (require 'json)
-(require 'seq)
 (require 'map)
+(require 'seq)
+(require 'subr-x)
 
 ;;; Customization
 (defgroup arduino-cli nil
