@@ -4,7 +4,7 @@
 
 ;; Author: Love Lagerkvist
 ;; URL: https://github.com/motform/arduino-cli-mode
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Package-Requires: ((emacs "25"))
 ;; Created: 2019-11-16
 ;; Keywords: extensions processes arduino
@@ -245,10 +245,12 @@
 (defvar arduino-cli-command-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "c") #'arduino-cli-compile)
-    (define-key map (kbd "b") #'arduino-cli-compile-and-upload) ; # TODO find a better key
+    (define-key map (kbd "b") #'arduino-cli-compile-and-upload)
     (define-key map (kbd "u") #'arduino-cli-upload)
-    (define-key map (kbd "l") #'arduino-cli-board-list)
     (define-key map (kbd "n") #'arduino-cli-new-sketch)
+    (define-key map (kbd "l") #'arduino-cli-board-list)
+    (define-key map (kbd "i") #'arduino-cli-lib-install)
+    (define-key map (kbd "u") #'arduino-cli-lib-uninstall)
     map)
   "Keymap for arduino-cli mode commands after `arduino-cli-mode-keymap-prefix'.")
 (fset 'arduino-cli-command-map arduino-cli-command-map)
@@ -266,6 +268,14 @@
    ["Compile and Upload Project" arduino-cli-upload]
    "--"
    ["Board list" arduino-cli-board-list]
+   ["Core list" arduino-cli-core-list]
+   ["Core install" arduino-cli-core-install]
+   ["Core uninstall" arduino-cli-core-uninstall]
+   "--"
+   ["Library list" arduino-cli-lib-list]
+   ["Library install" arduino-cli-lib-install]
+   ["Library uninstall" arduino-cli-lib-uninstall]
+   "--"
    ["New sketch" arduino-cli-new-sketch]))
 
 ;;;###autoload
