@@ -75,9 +75,10 @@
                        (lambda () default-directory))
     (compilation-start cmd 'arduino-cli-compilation-mode)))
 
-(defun arduino-cli--message (cmd)
-  "Run arduino-cli CMD and print as message."
-  (let* ((cmd (concat "arduino-cli " cmd))
+(defun arduino-cli--message (cmd &rest path)
+  "Run arduino-cli CMD in PATH (if provided) and print as message."
+  (let* ((default-directory (when path (car path)))
+         (cmd (concat "arduino-cli " cmd))
          (out (shell-command-to-string cmd)))
     (message out)))
 
@@ -122,11 +123,18 @@
          (cmd (concat "upload --fqbn " fqbn " --port " port)))
     (arduino-cli--compile cmd)))
 
-;; # TODO display in mini-buffer?
 (defun arduino-cli-board-list ()
   "Show list of connected boards."
   (interactive)
   (arduino-cli--message "board list"))
+
+(defun arduino-cli-new-sketch ()
+  "Create a new Arduino sketch."
+  (interactive)
+  (let* ((name (read-string "Sketch name: "))
+         (path (read-directory-name "Sketch path: "))
+         (cmd (concat "sketch new " name)))
+    (arduino-cli--message cmd path)))
 
 ;;; Minor mode
 (defvar arduino-cli-command-map
@@ -135,6 +143,7 @@
     (define-key map (kbd "b") #'arduino-cli-compile-and-upload) ; # TODO find a better key
     (define-key map (kbd "u") #'arduino-cli-upload)
     (define-key map (kbd "l") #'arduino-cli-board-list)
+    (define-key map (kbd "n") #'arduino-cli-new-sketch)
     map)
   "Keymap for arduino-cli mode commands after `arduino-cli-mode-keymap-prefix'.")
 (fset 'arduino-cli-command-map arduino-cli-command-map)
@@ -151,7 +160,8 @@
    ["Upload Project" arduino-cli-compile-and-upload]
    ["Compile and Upload Project" arduino-cli-upload]
    "--"
-   ["Board list" arduino-cli-board-list]))
+   ["Board list" arduino-cli-board-list]
+   ["New sketch" arduino-cli-new-sketch]))
 
 ;;;###autoload
 (define-minor-mode arduino-cli-mode
