@@ -77,7 +77,7 @@
 
 (defun arduino-cli--message (cmd &rest path)
   "Run arduino-cli CMD in PATH (if provided) and print as message."
-  (let* ((default-directory (when path (car path)))
+  (let* ((default-directory (if path (car path) default-directory))
          (cmd (concat "arduino-cli " cmd))
          (out (shell-command-to-string cmd)))
     (message out)))
@@ -86,15 +86,40 @@
   "Return USB-DEVICE it is an Arduino, nil otherwise."
   (assoc 'boards usb-device))
 
-;; # NOTE This leaves 'boards in final map, causing
+;; NOTE This leaves 'boards in final map, causing
 ;; insignificant, but ugly, duplication
 (defun arduino-cli--get-board ()
+  "Get connected Arduino board."
   (let* ((usb-devices (thread-first "arduino-cli board list --format json"
                         shell-command-to-string
                         json-read-from-string))
          (board (car (seq-filter #'arduino-cli--arduino? usb-devices)))
          (board-info (thread-first (assoc 'boards board) cdr (seq-elt 0))))
-    (map-merge 'list board board-info)))
+    (if board (map-merge 'list board board-info)
+      (error "ERROR: No board connected"))))
+
+(defun arduino-cli--get-cores ()
+  "Get installed Arduino cores."
+  (let* ((cores (thread-first "arduino-cli core list --format json"
+                  shell-command-to-string
+                  json-read-from-string))
+         (id-pairs (seq-map (lambda (m) (assoc 'ID m)) cores))
+         (ids (seq-map #'cdr id-pairs)))
+    (if ids ids
+      (error "ERROR: No cores installed"))))
+
+(defun arduino-cli--search-cores ()
+  "Search from list of cores."
+  (let* ((cores (thread-first "arduino-cli core search --format json" ; search without parameters gets cores
+                  shell-command-to-string
+                  json-read-from-string))
+         (id-pairs (seq-map (lambda (m) (assoc 'ID m)) cores))
+         (ids (seq-map #'cdr id-pairs)))
+    (arduino-cli--select ids)))
+
+(defun arduino-cli--select (xs)
+  "Select option from XS."
+  (ivy-completing-read "Select core: " xs)) ;; NOTE is it idiomatic to prompt with a colon?
 
 ;;; User commands
 (defun arduino-cli-compile ()
@@ -124,9 +149,46 @@
     (arduino-cli--compile cmd)))
 
 (defun arduino-cli-board-list ()
-  "Show list of connected boards."
+  "Show list of connected Arduino boards."
   (interactive)
   (arduino-cli--message "board list"))
+
+(defun arduino-cli-core-list ()
+  "Show list of installed Arduino cores."
+  (interactive)
+  (arduino-cli--message "core list"))
+
+(defun arduino-cli-core-upgrade ()
+  "Update-index and upgrade all installed Arduino cores."
+  (interactive)
+  (let* ((cores (arduino-cli--get-cores))
+         (selection (arduino-cli--select cores))
+         (cmd (concat "core upgrade " selection)))
+    (shell-command-to-string "arduino-cli core update-index")
+    (arduino-cli--message cmd)))
+
+(defun arduino-cli-core-upgrade-all ()
+  "Update-index and upgrade all installed Arduino cores."
+  (interactive)
+  (shell-command-to-string "arduino-cli core update-index")
+  (arduino-cli--message "core upgrade"))
+
+;; TODO change from compilation mode into other,non blocking mini-buffer display
+(defun arduino-cli-core-install ()
+  "Find and install Arduino cores."
+  (interactive)
+  (let* ((core (arduino-cli--search-cores))
+         (cmd (concat "arduino-cli core install " core)))
+    (shell-command-to-string "arduino-cli core update-index")
+    (compilation-start cmd 'arduino-cli-compilation-mode)))
+
+(defun arduino-cli-core-uninstall ()
+  "Find and uninstall Arduino cores."
+  (interactive)
+  (let* ((cores (arduino-cli--get-cores))
+         (selection (arduino-cli--select cores))
+         (cmd (concat "core uninstall " selection)))
+    (arduino-cli--message cmd)))
 
 (defun arduino-cli-new-sketch ()
   "Create a new Arduino sketch."
