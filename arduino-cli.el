@@ -117,6 +117,20 @@
          (ids (seq-map #'cdr id-pairs)))
     (arduino-cli--select ids)))
 
+(defun arduino-cli--get-libs ()
+  "Get installed Arduino libraries."
+  (let* ((libs (arduino-cli--cmd-json "lib list"))
+         (lib-names (seq-map (lambda (lib) (cdr (assoc 'name (assoc 'library lib)))) libs)))
+    (if lib-names lib-names
+      (error "ERROR: No libraries installed"))))
+
+(defun arduino-cli--search-libs ()
+  "Get installed Arduino libraries."
+  (let* ((libs (cdr (assoc 'libraries (arduino-cli--cmd-json "lib search"))))
+         (lib-names (seq-map (lambda (lib) (cdr (assoc 'name lib))) libs)))
+    (if lib-names lib-names
+      (error "ERROR: Unable to find libraries"))))
+
 (defun arduino-cli--select (xs)
   "Select option from XS."
   (ivy-completing-read "Select core: " xs)) ;; NOTE is it idiomatic to prompt with a colon?
@@ -188,6 +202,35 @@
   (let* ((cores (arduino-cli--get-cores))
          (selection (arduino-cli--select cores))
          (cmd (concat "core uninstall " selection)))
+    (arduino-cli--message cmd)))
+
+(defun arduino-cli-lib-list ()
+  "Show list of installed Arduino libraries."
+  (interactive)
+  (arduino-cli--message "lib list"))
+
+(defun arduino-cli-lib-upgrade ()
+  "Upgrade Arduino libraries."
+  (interactive)
+  (shell-command-to-string "arduino-cli lib update-index")
+  (arduino-cli--message "lib upgrade"))
+
+;; TODO change from compilation mode into other,non blocking mini-buffer display
+(defun arduino-cli-lib-install ()
+  "Find and install Arduino libraries."
+  (interactive)
+  (let* ((libs (arduino-cli--search-libs))
+         (selection (arduino-cli--select libs))
+         (cmd (concat "arduino-cli lib install " selection)))
+    (shell-command-to-string "arduino-cli lib update-index")
+    (compilation-start cmd 'arduino-cli-compilation-mode)))
+
+(defun arduino-cli-lib-uninstall ()
+  "Find and uninstall Arduino libraries."
+  (interactive)
+  (let* ((libs (arduino-cli--get-libs))
+         (selection (arduino-cli--select libs))
+         (cmd (concat "lib uninstall " selection)))
     (arduino-cli--message cmd)))
 
 (defun arduino-cli-new-sketch ()
