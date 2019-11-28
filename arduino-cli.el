@@ -86,13 +86,16 @@
   "Return USB-DEVICE it is an Arduino, nil otherwise."
   (assoc 'boards usb-device))
 
+(defun arduino-cli--cmd-json (cmd)
+  "Get the result of CMD as JSON-style alist."
+  (let* ((cmmd (concat "arduino-cli " cmd " --format json")))
+    (thread-first cmmd shell-command-to-string json-read-from-string)))
+
 ;; NOTE This leaves 'boards in final map, causing
 ;; insignificant, but ugly, duplication
 (defun arduino-cli--get-board ()
   "Get connected Arduino board."
-  (let* ((usb-devices (thread-first "arduino-cli board list --format json"
-                        shell-command-to-string
-                        json-read-from-string))
+  (let* ((usb-devices (arduino-cli--cmd-json "board list"))
          (board (car (seq-filter #'arduino-cli--arduino? usb-devices)))
          (board-info (thread-first (assoc 'boards board) cdr (seq-elt 0))))
     (if board (map-merge 'list board board-info)
@@ -100,9 +103,7 @@
 
 (defun arduino-cli--get-cores ()
   "Get installed Arduino cores."
-  (let* ((cores (thread-first "arduino-cli core list --format json"
-                  shell-command-to-string
-                  json-read-from-string))
+  (let* ((cores (arduino-cli--cmd-json "core list"))
          (id-pairs (seq-map (lambda (m) (assoc 'ID m)) cores))
          (ids (seq-map #'cdr id-pairs)))
     (if ids ids
@@ -110,9 +111,7 @@
 
 (defun arduino-cli--search-cores ()
   "Search from list of cores."
-  (let* ((cores (thread-first "arduino-cli core search --format json" ; search without parameters gets cores
-                  shell-command-to-string
-                  json-read-from-string))
+  (let* ((cores (arduino-cli--cmd-json "core search")) ; search without parameters gets all cores
          (id-pairs (seq-map (lambda (m) (assoc 'ID m)) cores))
          (ids (seq-map #'cdr id-pairs)))
     (arduino-cli--select ids)))
