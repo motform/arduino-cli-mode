@@ -131,9 +131,9 @@
     (if lib-names lib-names
       (error "ERROR: Unable to find libraries"))))
 
-(defun arduino-cli--select (xs)
-  "Select option from XS."
-  (ivy-completing-read "Select core: " xs)) ;; NOTE is it idiomatic to prompt with a colon?
+(defun arduino-cli--select (xs msg)
+  "Select option from XS, prompted by MSG."
+  (ivy-completing-read msg xs)) ;; NOTE is it idiomatic to prompt with a colon?
 
 ;;; User commands
 (defun arduino-cli-compile ()
@@ -176,7 +176,7 @@
   "Update-index and upgrade all installed Arduino cores."
   (interactive)
   (let* ((cores (arduino-cli--get-cores))
-         (selection (arduino-cli--select cores))
+         (selection (arduino-cli--select cores "Core "))
          (cmd (concat "core upgrade " selection)))
     (shell-command-to-string "arduino-cli core update-index")
     (arduino-cli--message cmd)))
@@ -200,7 +200,7 @@
   "Find and uninstall Arduino cores."
   (interactive)
   (let* ((cores (arduino-cli--get-cores))
-         (selection (arduino-cli--select cores))
+         (selection (arduino-cli--select cores "Core "))
          (cmd (concat "core uninstall " selection)))
     (arduino-cli--message cmd)))
 
@@ -220,7 +220,7 @@
   "Find and install Arduino libraries."
   (interactive)
   (let* ((libs (arduino-cli--search-libs))
-         (selection (arduino-cli--select libs))
+         (selection (arduino-cli--select libs "Library "))
          (cmd (concat "arduino-cli lib install " selection)))
     (shell-command-to-string "arduino-cli lib update-index")
     (compilation-start cmd 'arduino-cli-compilation-mode)))
@@ -229,7 +229,7 @@
   "Find and uninstall Arduino libraries."
   (interactive)
   (let* ((libs (arduino-cli--get-libs))
-         (selection (arduino-cli--select libs))
+         (selection (arduino-cli--select libs "Library "))
          (cmd (concat "lib uninstall " selection)))
     (arduino-cli--message cmd)))
 
