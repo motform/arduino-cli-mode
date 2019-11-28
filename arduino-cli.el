@@ -44,6 +44,7 @@
 (require 'map)
 (require 'seq)
 (require 'subr-x)
+(require 'ivy)
 
 ;;; Customization
 (defgroup arduino-cli nil
