@@ -1,8 +1,8 @@
 # arduino-cli-mode
 
 `arduino-cli-mode` is an Emacs minor mode for using the excellent new [arduino command line interface](https://github.com/arduino/arduino-cli)
-in an Emacs-native fashion. The project at a very early stage, and only supports
-basic compilation and uploading.
+in an Emacs-native fashion. The project at an early stage, but supports
+basic compilation, uploading and library/core management.
 
 
 ## Installation
@@ -30,15 +30,18 @@ The following keybindings are currently available.
 | Compile                 | `C-c C-a c` |
 | Upload                  | `C-c C-a u` |
 | Compile and Upload      | `C-c C-a b` |
-| List Connected Boards   | `C-c C-a c` |
+| List Connected Boards   | `C-c C-a l` |
+| Create new sketch       | `C-c C-a n` |
+| Install a Library       | `C-c C-a i` |
+| Uninstall a Library     | `C-c C-a u` |
 
 
 ## Limitations
 
-* If there are more than one board connected simultaneously, there will be dragons (fixing this is highest on the TODO).
-* The only supported commands are `compile`, `upload` and `board list`.
+* If there are more than one board connected simultaneously, there will be dragons (fixing this is highest on the TODO)
+* Does not supported the `config` or advanced `board` commands
 * Only tested on macOS (but will probably work on other Unices)
-* The fact that I decided against calling it `elduino-mode`.
+* The fact that I decided against calling it `elduino-mode`
 
 
 ## What it is not
