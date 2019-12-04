@@ -109,6 +109,7 @@
     (if selected-board selected-board
       (error "ERROR: No board connected"))))
 
+;; TODO add support for compiling to known cores when no boards are connected
 (defun arduino-cli--dispatch-board (boards)
   "Correctly dispatch on the amount of BOARDS connected."
   (pcase (length boards)
@@ -116,15 +117,13 @@
     ((pred (< 1)) (arduino-cli--select-board boards))
     (_ (error "ERROR: No board connected"))))
 
-(defun arduino-cli--board-names (boards)
-  "Get names of BOARDS as list of (name @ port)."
-  (let* ((names (mapcar* (lambda (m) (thread-first (assoc 'name m) cdr)) boards))
-         (ports (mapcar* (lambda (m) (thread-first (assoc 'address m) cdr)) boards)))
-    (mapcar* (lambda (x y) (concat x " @ " y)) names ports)))
+(defun arduino-cli--board-name (board)
+  "Get name of BOARD in (name @ port) format."
+  (concat (cdr (assoc 'name board)) " @ " (cdr (assoc 'address board))))
 
 (defun arduino-cli--select-board (boards)
   "Prompt user to select an Arduino from BOARDS."
-  (let* ((board-names (arduino-cli--board-names boards))
+  (let* ((board-names (mapcar* #'arduino-cli--board-name boards))
          (selection (thread-first board-names (arduino-cli--select "Board ") (split-string "@") cadr string-trim)))
     (car (seq-filter #'(lambda (m) (arduino-cli--selected-board? m selection)) boards))))
 
