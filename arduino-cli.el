@@ -141,7 +141,7 @@
   (let* ((cores (arduino-cli--cmd-json "core search")) ; search without parameters gets all cores
          (id-pairs (seq-map (lambda (m) (assoc 'ID m)) cores))
          (ids (seq-map #'cdr id-pairs)))
-    (arduino-cli--select ids)))
+    (arduino-cli--select ids "Core ")))
 
 (defun arduino-cli--get-libs ()
   "Get installed Arduino libraries."
