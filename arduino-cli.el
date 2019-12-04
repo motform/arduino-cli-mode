@@ -87,6 +87,11 @@
   "Return USB-DEVICE it is an Arduino, nil otherwise."
   (assoc 'boards usb-device))
 
+(defun arduino-cli--selected-board? (board selected-board)
+  "Return BOARD if it is the SELECTED-BOARD."
+  (string= (cdr (assoc 'address board))
+           selected-board))
+
 (defun arduino-cli--cmd-json (cmd)
   "Get the result of CMD as JSON-style alist."
   (let* ((cmmd (concat "arduino-cli " cmd " --format json")))
@@ -97,10 +102,31 @@
 (defun arduino-cli--get-board ()
   "Get connected Arduino board."
   (let* ((usb-devices (arduino-cli--cmd-json "board list"))
-         (board (car (seq-filter #'arduino-cli--arduino? usb-devices)))
-         (board-info (thread-first (assoc 'boards board) cdr (seq-elt 0))))
-    (if board (map-merge 'list board board-info)
+         (boards (seq-filter #'arduino-cli--arduino? usb-devices))
+         (boards-info (seq-map (lambda (m) (thread-first (assoc 'boards m) cdr (seq-elt 0))) boards))
+         (informed-boards (mapcar* (lambda (m n) (map-merge 'list m n)) boards boards-info))
+         (selected-board (arduino-cli--dispatch-board informed-boards)))
+    (if selected-board selected-board
       (error "ERROR: No board connected"))))
+
+(defun arduino-cli--dispatch-board (boards)
+  "Correctly dispatch on the amount of BOARDS connected."
+  (pcase (length boards)
+    (`1 (car boards))
+    ((pred (< 1)) (arduino-cli--select-board boards))
+    (_ (error "ERROR: No board connected"))))
+
+(defun arduino-cli--board-names (boards)
+  "Get names of BOARDS as list of (name @ port)."
+  (let* ((names (mapcar* (lambda (m) (thread-first (assoc 'name m) cdr)) boards))
+         (ports (mapcar* (lambda (m) (thread-first (assoc 'address m) cdr)) boards)))
+    (mapcar* (lambda (x y) (concat x " @ " y)) names ports)))
+
+(defun arduino-cli--select-board (boards)
+  "Prompt user to select an Arduino from BOARDS."
+  (let* ((board-names (arduino-cli--board-names boards))
+         (selection (thread-first board-names (arduino-cli--select "Board ") (split-string "@") cadr string-trim)))
+    (car (seq-filter #'(lambda (m) (arduino-cli--selected-board? m selection)) boards))))
 
 (defun arduino-cli--get-cores ()
   "Get installed Arduino cores."
@@ -133,7 +159,8 @@
 
 (defun arduino-cli--select (xs msg)
   "Select option from XS, prompted by MSG."
-  (ivy-completing-read msg xs)) ;; NOTE is it idiomatic to prompt with a colon?
+  (ivy-completing-read msg xs))
+
 
 ;;; User commands
 (defun arduino-cli-compile ()
@@ -240,6 +267,7 @@
          (path (read-directory-name "Sketch path: "))
          (cmd (concat "sketch new " name)))
     (arduino-cli--message cmd path)))
+
 
 ;;; Minor mode
 (defvar arduino-cli-command-map
