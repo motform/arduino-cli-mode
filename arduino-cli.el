@@ -298,7 +298,10 @@
 
 (easy-menu-change
  '("Tools") "arduino-cli"
- '(["Compile Project" arduino-cli-build]
+ '("--"
+   ["New sketch" arduino-cli-new-sketch]
+   "--"
+   ["Compile Project" arduino-cli-build]
    ["Upload Project" arduino-cli-compile-and-upload]
    ["Compile and Upload Project" arduino-cli-upload]
    "--"
@@ -311,7 +314,13 @@
    ["Library install" arduino-cli-lib-install]
    ["Library uninstall" arduino-cli-lib-uninstall]
    "--"
-   ["New sketch" arduino-cli-new-sketch]))
+   ["Core list" arduino-cli-core-list]
+   ["Core install" arduino-cli-core-install]
+   ["Core uninstall" arduino-cli-core-uninstall]
+   ["Core upgrade" arduino-cli-core-upgrade]
+   "--"
+   ["Config init" arduino-cli-config-init]
+   ["Config dump" arduino-cli-config-dump]))
 
 ;;;###autoload
 (define-minor-mode arduino-cli-mode
