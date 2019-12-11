@@ -1,8 +1,13 @@
 # arduino-cli-mode
 
 `arduino-cli-mode` is an Emacs minor mode for using the excellent new [arduino command line interface](https://github.com/arduino/arduino-cli)
-in an Emacs-native fashion. The project at an early stage, but supports
-basic compilation, uploading and library/core management.
+in an Emacs-native fashion. The mode covers the full range of
+`arduino-cli` features in an Emacs native fashion. It even 
+leverages the infinite power the GNU to provide fussy-finding
+of libraries and much improved support for handling multiple boards.
+The commands that originally require multiple steps (such as first
+searching for a library and then separately installing it) have
+been folded into one.
 
 
 ## Installation
@@ -23,7 +28,7 @@ Once that is installed, add the following to your init:
 
 The default keymap prefix is `C-c C-a`.
 
-The following keybindings are currently available.
+The following keybindings are provided out of the box.
 
 | Function                | Keymap      |
 | ---                     | ---         |
@@ -38,8 +43,7 @@ The following keybindings are currently available.
 
 ## Limitations
 
-* If there are more than one board connected simultaneously, there will be dragons (fixing this is highest on the TODO)
-* Does not supported the `config` or advanced `board` commands
+* Does not support `board attach` commands
 * Only tested on macOS (but will probably work on other Unices)
 * The fact that I decided against calling it `elduino-mode`
 
