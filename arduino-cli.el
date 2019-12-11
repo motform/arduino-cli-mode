@@ -267,6 +267,14 @@
          (cmd (concat "sketch new " name)))
     (arduino-cli--message cmd path)))
 
+(defun arduino-cli-config-init ()
+  "Create a new Arduino config."
+  (arduino-cli--message "config init"))
+
+(defun arduino-cli-config-dump ()
+  "Dump the current Arduino config."
+  (arduino-cli--message "config dump"))
+
 
 ;;; Minor mode
 (defvar arduino-cli-command-map
