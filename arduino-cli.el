@@ -44,7 +44,6 @@
 (require 'map)
 (require 'seq)
 (require 'subr-x)
-(require 'ivy)
 
 ;;; Customization
 (defgroup arduino-cli nil
@@ -158,7 +157,7 @@
 
 (defun arduino-cli--select (xs msg)
   "Select option from XS, prompted by MSG."
-  (ivy-completing-read msg xs))
+  (completing-read msg xs))
 
 
 ;;; User commands
