@@ -250,7 +250,7 @@
   (interactive)
   (let* ((libs (arduino-cli--search-libs))
          (selection (arduino-cli--select libs "Library "))
-         (cmd (concat "arduino-cli lib install " selection)))
+         (cmd (concat "arduino-cli lib install " (shell-quote-argument selection))))
     (shell-command-to-string "arduino-cli lib update-index")
     (compilation-start cmd 'arduino-cli-compilation-mode)))
 
@@ -259,7 +259,7 @@
   (interactive)
   (let* ((libs (arduino-cli--libs))
          (selection (arduino-cli--select libs "Library "))
-         (cmd (concat "lib uninstall " selection)))
+         (cmd (concat "lib uninstall " (shell-quote-argument selection))))
     (arduino-cli--message cmd)))
 
 (defun arduino-cli-new-sketch ()
