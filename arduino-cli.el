@@ -98,7 +98,7 @@
 
 ;; NOTE This leaves 'boards in final map, causing
 ;; insignificant, but ugly, duplication
-(defun arduino-cli--get-board ()
+(defun arduino-cli--board ()
   "Get connected Arduino board."
   (let* ((usb-devices (arduino-cli--cmd-json "board list"))
          (boards (seq-filter #'arduino-cli--arduino? usb-devices))
@@ -126,7 +126,7 @@
          (selection (thread-first board-names (arduino-cli--select "Board ") (split-string "@") cadr string-trim)))
     (car (seq-filter #'(lambda (m) (arduino-cli--selected-board? m selection)) boards))))
 
-(defun arduino-cli--get-cores ()
+(defun arduino-cli--cores ()
   "Get installed Arduino cores."
   (let* ((cores (arduino-cli--cmd-json "core list"))
          (id-pairs (seq-map (lambda (m) (assoc 'ID m)) cores))
@@ -141,7 +141,7 @@
          (ids (seq-map #'cdr id-pairs)))
     (arduino-cli--select ids "Core ")))
 
-(defun arduino-cli--get-libs ()
+(defun arduino-cli--libs ()
   "Get installed Arduino libraries."
   (let* ((libs (arduino-cli--cmd-json "lib list"))
          (lib-names (seq-map (lambda (lib) (cdr (assoc 'name (assoc 'library lib)))) libs)))
@@ -164,7 +164,7 @@
 (defun arduino-cli-compile ()
   "Compile Arduino project."
   (interactive)
-  (let* ((board (arduino-cli--get-board))
+  (let* ((board (arduino-cli--board))
          (fqbn (cdr (assoc 'FQBN board)))
          (cmd (concat "compile --fqbn " fqbn)))
     (arduino-cli--compile cmd)))
@@ -172,7 +172,7 @@
 (defun arduino-cli-compile-and-upload ()
   "Compile and upload Arduino project."
   (interactive)
-  (let* ((board (arduino-cli--get-board))
+  (let* ((board (arduino-cli--board))
          (fqbn (cdr (assoc 'FQBN board)))
          (port (cdr (assoc 'address board)))
          (cmd (concat "compile --fqbn " fqbn " --port " port " --upload")))
@@ -181,7 +181,7 @@
 (defun arduino-cli-upload ()
   "Upload Arduino project."
   (interactive)
-  (let* ((board (arduino-cli--get-board))
+  (let* ((board (arduino-cli--board))
          (fqbn (cdr (assoc 'FQBN board)))
          (port (cdr (assoc 'address board)))
          (cmd (concat "upload --fqbn " fqbn " --port " port)))
@@ -200,7 +200,7 @@
 (defun arduino-cli-core-upgrade ()
   "Update-index and upgrade all installed Arduino cores."
   (interactive)
-  (let* ((cores (arduino-cli--get-cores))
+  (let* ((cores (arduino-cli--cores))
          (selection (arduino-cli--select cores "Core "))
          (cmd (concat "core upgrade " selection)))
     (shell-command-to-string "arduino-cli core update-index")
@@ -224,7 +224,7 @@
 (defun arduino-cli-core-uninstall ()
   "Find and uninstall Arduino cores."
   (interactive)
-  (let* ((cores (arduino-cli--get-cores))
+  (let* ((cores (arduino-cli--cores))
          (selection (arduino-cli--select cores "Core "))
          (cmd (concat "core uninstall " selection)))
     (arduino-cli--message cmd)))
@@ -253,7 +253,7 @@
 (defun arduino-cli-lib-uninstall ()
   "Find and uninstall Arduino libraries."
   (interactive)
-  (let* ((libs (arduino-cli--get-libs))
+  (let* ((libs (arduino-cli--libs))
          (selection (arduino-cli--select libs "Library "))
          (cmd (concat "lib uninstall " selection)))
     (arduino-cli--message cmd)))
