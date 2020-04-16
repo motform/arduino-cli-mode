@@ -47,6 +47,7 @@
 (require 'json)
 (require 'map)
 (require 'seq)
+(require 'cl-lib)
 (require 'subr-x)
 
 ;;; Customization
@@ -107,7 +108,7 @@
   (let* ((usb-devices (arduino-cli--cmd-json "board list"))
          (boards (seq-filter #'arduino-cli--arduino? usb-devices))
          (boards-info (seq-map (lambda (m) (thread-first (assoc 'boards m) cdr (seq-elt 0))) boards))
-         (informed-boards (mapcar* (lambda (m n) (map-merge 'list m n)) boards boards-info))
+         (informed-boards (cl-mapcar (lambda (m n) (map-merge 'list m n)) boards boards-info))
          (selected-board (arduino-cli--dispatch-board informed-boards)))
     (if selected-board selected-board
       (error "ERROR: No board connected"))))
@@ -126,7 +127,7 @@
 
 (defun arduino-cli--select-board (boards)
   "Prompt user to select an Arduino from BOARDS."
-  (let* ((board-names (mapcar* #'arduino-cli--board-name boards))
+  (let* ((board-names (cl-mapcar #'arduino-cli--board-name boards))
          (selection (thread-first board-names (arduino-cli--select "Board ") (split-string "@") cadr string-trim)))
     (car (seq-filter #'(lambda (m) (arduino-cli--selected-board? m selection)) boards))))
 
