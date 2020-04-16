@@ -61,6 +61,16 @@
   :group 'arduino-cli
   :type 'string)
 
+(defcustom arduino-cli-mode-default-fqbn nil
+  "Default fqbn to use if board selection fails."
+  :group 'arduino-cli
+  :type 'string)
+
+(defcustom arduino-cli-mode-default-port nil
+  "Default port to use if board selection fails."
+  :group 'arduino-cli
+  :type 'string)
+
 (defcustom arduino-cli-mode-verify nil
   "Verify uploaded binary after the upload."
   :group 'arduino-cli
@@ -101,6 +111,13 @@
   (let* ((cmmd (concat "arduino-cli " cmd " --format json")))
     (thread-first cmmd shell-command-to-string json-read-from-string)))
 
+(defun ardunio-cli--default-board ()
+  "Get the default Arduino board, if available."
+  (when (and arduino-cli-mode-default-port
+             arduino-cli-mode-default-fqbn)
+    `((address  . ,arduino-cli-mode-default-port)
+      (FQBN . ,arduino-cli-mode-default-fqbn))))
+
 ;; NOTE This leaves 'boards in final map, causing
 ;; insignificant, but ugly, duplication
 (defun arduino-cli--board ()
@@ -109,9 +126,11 @@
          (boards (seq-filter #'arduino-cli--arduino? usb-devices))
          (boards-info (seq-map (lambda (m) (thread-first (assoc 'boards m) cdr (seq-elt 0))) boards))
          (informed-boards (cl-mapcar (lambda (m n) (map-merge 'list m n)) boards boards-info))
-         (selected-board (arduino-cli--dispatch-board informed-boards)))
-    (if selected-board selected-board
-      (error "ERROR: No board connected"))))
+         (selected-board (arduino-cli--dispatch-board informed-boards))
+         (default-board (ardunio-cli--default-board)))
+    (cond (selected-board selected-board)
+          (default-board default-board)
+          (t (error "ERROR: No board connected")))))
 
 ;; TODO add support for compiling to known cores when no boards are connected
 (defun arduino-cli--dispatch-board (boards)
@@ -119,7 +138,7 @@
   (pcase (length boards)
     (`1 (car boards))
     ((pred (< 1)) (arduino-cli--select-board boards))
-    (_ (error "ERROR: No board connected"))))
+    (_ nil)))
 
 (defun arduino-cli--board-name (board)
   "Get name of BOARD in (name @ port) format."
