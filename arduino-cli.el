@@ -83,6 +83,10 @@
   (setq-local compilation-scroll-output t)
   (require 'ansi-color))
 
+(defun arduino-cli--?map-put (m v k)
+  "Puts V in M under K when V, else return M."
+  (if v (map-put m k v)) m)
+
 (defun arduino-cli--compile (cmd)
   "Run arduino-cli CMD in 'arduino-cli-compilation-mode."
   (let ((cmd (concat "arduino-cli " cmd " " default-directory)))
@@ -113,10 +117,9 @@
 
 (defun ardunio-cli--default-board ()
   "Get the default Arduino board, if available."
-  (when (and arduino-cli-mode-default-port
-             arduino-cli-mode-default-fqbn)
-    `((address  . ,arduino-cli-mode-default-port)
-      (FQBN . ,arduino-cli-mode-default-fqbn))))
+  (thread-first '()
+    (arduino-cli--?map-put arduino-cli-default-fqbn 'FQBN)
+    (arduino-cli--?map-put arduino-cli-default-port 'address)))
 
 ;; NOTE This leaves 'boards in final map, causing
 ;; insignificant, but ugly, duplication
@@ -189,7 +192,8 @@
   "Compile Arduino project."
   (interactive)
   (let* ((board (arduino-cli--board))
-         (fqbn (cdr (assoc 'FQBN board)))
+         (fqbn (if-let (fqbn (cdr (assoc 'FQBN board))) fqbn
+                 (error "ERROR: No fqbn specified")))
          (cmd (concat "compile --fqbn " fqbn)))
     (arduino-cli--compile cmd)))
 
@@ -197,8 +201,10 @@
   "Compile and upload Arduino project."
   (interactive)
   (let* ((board (arduino-cli--board))
-         (fqbn (cdr (assoc 'FQBN board)))
-         (port (cdr (assoc 'address board)))
+         (fqbn (if-let (fqbn (cdr (assoc 'FQBN board))) fqbn
+                 (error "ERROR: No fqbn specified")))
+         (port (if-let (port (cdr (assoc 'address board))) port
+                 (error "ERROR: No port specified")))
          (cmd (concat "compile --fqbn " fqbn " --port " port " --upload")))
     (arduino-cli--compile cmd)))
 
@@ -206,8 +212,10 @@
   "Upload Arduino project."
   (interactive)
   (let* ((board (arduino-cli--board))
-         (fqbn (cdr (assoc 'FQBN board)))
-         (port (cdr (assoc 'address board)))
+         (fqbn (if-let (fqbn (cdr (assoc 'FQBN board))) fqbn
+                 (error "ERROR: No fqbn specified")))
+         (port (if-let (port (cdr (assoc 'address board))) port
+                 (error "ERROR: No port specified")))
          (cmd (concat "upload --fqbn " fqbn " --port " port)))
     (arduino-cli--compile cmd)))
 
