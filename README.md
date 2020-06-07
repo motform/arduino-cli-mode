@@ -15,7 +15,36 @@ been folded into one.
 Until the package is published on melpa, I recommend using [straight.el](https://github.com/raxod502/straight.el).
 
 
+## Default boards
+
+By default `arduino-cli-mode` uses the `board list` command from
+`arduino-cli` to determine which board to target. This works well most
+of the time, but sometimes fails due to connectivity issues. It also
+requires the target board to be connected, which might not always be
+possible. To cover these use cases you are able to set a default board
+(fqbn) and port via `arduino-cli-default-fqbn` and
+`arduino-cli-default-port` respectively. These can of course be set global via
+your `init`, but have found them to be an excellent fit for [dir](https://www.gnu.org/software/emacs/manual/html_node/elisp/Directory-Local-Variables.html) and 
+[file local variables](https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Local-Variables.html#File-Local-Variables).
+To get the fqbn/port information for a currently connected board, use 
+`arduino-cli-board-list`.
+
+Using default board variables should be a bit faster, as it
+eliminates the need to shelling out and then parse JSON from `arduino-cli`.
+
+
+
 ## Customization
+
+
+You can enable the major flags from `arduino-cli` using similar enumerations. 
+
+| Flag                                | Values                                       |
+| ---                                 | ---                                          |
+| `arduino-cli-verify`                | `nil` (default), `t`                         |
+| `arduino-cli-warnings`              | `nil` (default), `'default`, `'more`, `'all` |
+| `arduino-cli-vebosity`              | `nil` (default), `'quiet`, `'veborse`        |
+| `arduino-cli-compile-only-vebosity` | `nil`, `t` (default)                         |
 
 If you want to automatically enable `arduino-cli-mode` on `.ino` files, you have to get [auto-minor-mode](https://github.com/joewreschnig/auto-minor-mode).
 Once that is installed, add the following to your init:
@@ -26,7 +55,7 @@ Once that is installed, add the following to your init:
 
 ## Keymap
 
-The default keymap prefix is `C-c C-a`.
+The default keymap prefix is `C-c C-a` and can be customized with `arduino-cli-mode-keymap-prefix`.
 
 The following keybindings are provided out of the box.
 
@@ -45,7 +74,7 @@ The following keybindings are provided out of the box.
 
 * Does not support `board attach` commands
 * Only tested on macOS (but will probably work on other Unices)
-* The fact that I decided against calling it `elduino-mode`
+* Not called `elduino-mode`
 
 
 ## What it is not
