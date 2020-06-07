@@ -5,7 +5,7 @@
 ;; Author: Love Lagerkvist
 ;; URL: https://github.com/motform/arduino-cli-mode
 ;; Version: 200697
-;; Package-Requires: ((emacs "25"))
+;; Package-Requires: ((emacs "25.1"))
 ;; Created: 2019-11-16
 ;; Keywords: extensions processes arduino
 
@@ -167,7 +167,7 @@
   (let* ((cmmd (concat "arduino-cli " cmd " --format json")))
     (thread-first cmmd shell-command-to-string json-read-from-string)))
 
-(defun ardunio-cli--default-board ()
+(defun arduino-cli--default-board ()
   "Get the default Arduino board, if available."
   (thread-first '()
     (arduino-cli--?map-put arduino-cli-default-fqbn 'FQBN)
@@ -182,7 +182,7 @@
          (boards-info (seq-map (lambda (m) (thread-first (assoc 'boards m) cdr (seq-elt 0))) boards))
          (informed-boards (cl-mapcar (lambda (m n) (map-merge 'list m n)) boards boards-info))
          (selected-board (arduino-cli--dispatch-board informed-boards))
-         (default-board (ardunio-cli--default-board)))
+         (default-board (arduino-cli--default-board)))
     (cond (selected-board selected-board)
           (default-board default-board)
           (t (error "ERROR: No board connected")))))
@@ -415,5 +415,5 @@
   :group 'arduino-cli
   :require 'arduino-cli)
 
-(provide 'arduino-cli-mode)
+(provide 'arduino-cli)
 ;;; arduino-cli.el ends here
