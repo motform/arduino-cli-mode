@@ -381,31 +381,31 @@
     map)
   "Keymap for arduino-cli mode.")
 
-(easy-menu-change
- '("Tools") "arduino-cli"
- '("--"
-   ["New sketch" arduino-cli-new-sketch]
-   "--"
-   ["Compile Project" arduino-cli-build]
-   ["Upload Project" arduino-cli-compile-and-upload]
-   ["Compile and Upload Project" arduino-cli-upload]
-   "--"
-   ["Board list" arduino-cli-board-list]
-   ["Core list" arduino-cli-core-list]
-   ["Core install" arduino-cli-core-install]
-   ["Core uninstall" arduino-cli-core-uninstall]
-   "--"
-   ["Library list" arduino-cli-lib-list]
-   ["Library install" arduino-cli-lib-install]
-   ["Library uninstall" arduino-cli-lib-uninstall]
-   "--"
-   ["Core list" arduino-cli-core-list]
-   ["Core install" arduino-cli-core-install]
-   ["Core uninstall" arduino-cli-core-uninstall]
-   ["Core upgrade" arduino-cli-core-upgrade]
-   "--"
-   ["Config init" arduino-cli-config-init]
-   ["Config dump" arduino-cli-config-dump]))
+(easy-menu-define arduino-cli-menu arduino-cli-mode-map
+  "Menu for arduino-cli."
+  '("Arduino-CLI"
+    ["New sketch" arduino-cli-new-sketch]
+    "--"
+    ["Compile Project" arduino-cli-build]
+    ["Upload Project" arduino-cli-compile-and-upload]
+    ["Compile and Upload Project" arduino-cli-upload]
+    "--"
+    ["Board list" arduino-cli-board-list]
+    ["Core list" arduino-cli-core-list]
+    ["Core install" arduino-cli-core-install]
+    ["Core uninstall" arduino-cli-core-uninstall]
+    "--"
+    ["Library list" arduino-cli-lib-list]
+    ["Library install" arduino-cli-lib-install]
+    ["Library uninstall" arduino-cli-lib-uninstall]
+    "--"
+    ["Core list" arduino-cli-core-list]
+    ["Core install" arduino-cli-core-install]
+    ["Core uninstall" arduino-cli-core-uninstall]
+    ["Core upgrade" arduino-cli-core-upgrade]
+    "--"
+    ["Config init" arduino-cli-config-init]
+    ["Config dump" arduino-cli-config-dump]))
 
 ;;;###autoload
 (define-minor-mode arduino-cli-mode
