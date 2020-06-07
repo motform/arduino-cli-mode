@@ -4,7 +4,7 @@
 
 ;; Author: Love Lagerkvist
 ;; URL: https://github.com/motform/arduino-cli-mode
-;; Version: 0.2.0
+;; Version: 200697
 ;; Package-Requires: ((emacs "25"))
 ;; Created: 2019-11-16
 ;; Keywords: extensions processes arduino
@@ -40,6 +40,8 @@
 ;; 
 ;; For more information on the wrapper, see the readme at https://github.com/motform/emacs-arduino-cli
 ;; For more information on arduino-cli itself, see https://github.com/arduino/arduino-cli
+;;
+;; Tested against arduino-cli >= 0.10.0
 
 ;;; Code:
 
@@ -47,8 +49,9 @@
 (require 'json)
 (require 'map)
 (require 'seq)
-(require 'cl-lib)
 (require 'subr-x)
+
+(eval-when-compile (require 'cl-lib))
 
 ;;; Customization
 (defgroup arduino-cli nil
@@ -61,21 +64,35 @@
   :group 'arduino-cli
   :type 'string)
 
-(defcustom arduino-cli-mode-default-fqbn nil
+(defcustom arduino-cli-default-fqbn nil
   "Default fqbn to use if board selection fails."
   :group 'arduino-cli
   :type 'string)
 
-(defcustom arduino-cli-mode-default-port nil
+(defcustom arduino-cli-default-port nil
   "Default port to use if board selection fails."
   :group 'arduino-cli
   :type 'string)
 
-(defcustom arduino-cli-mode-verify nil
+(defcustom arduino-cli-verify nil
   "Verify uploaded binary after the upload."
   :group 'arduino-cli
   :type 'boolean)
 
+(defcustom arduino-cli-warnings nil
+  "Set GCC warning level, can be nil (default), 'default, 'more or 'all."
+  :group 'arduino-cli
+  :type 'boolean)
+
+(defcustom arduino-cli-verbosity nil
+  "Set arduino-cli verbosity level, can be nil (default), 'quiet or 'verbose."
+  :group 'arduino-cli
+  :type 'boolean)
+
+(defcustom arduino-cli-compile-only-verbosity t
+  "If true (default), only apply verbosity setting to compilation."
+  :group 'arduino-cli
+  :type 'boolean)
 
 ;;; Internal functions
 (define-compilation-mode arduino-cli-compilation-mode "arduino-cli-compilation"
@@ -87,18 +104,53 @@
   "Puts V in M under K when V, else return M."
   (if v (map-put m k v)) m)
 
+(defun arduino-cli--verify ()
+  "Get verify bool."
+  (when arduino-cli-verify " -t"))
+
+(defun arduino-cli--verbosity ()
+  "Get the current verbosity level."
+  (pcase arduino-cli-verbosity
+    ('quitet  " --quiet")
+    ('verbose " --verbose")))
+
+;; TODO make sure this passes the correct type to the cli, it might expect an escaped string
+(defun arduino-cli--warnings ()
+  "Get the current warnings level."
+  (when arduino-cli-warnings
+    (concat " --warnings " (symbol-name arduino-cli-warnings))))
+
+;; TODO make sure this works
+(defun arduino-cli--general-flags ()
+  "Add flags to CMD, if set."
+  (concat (when (not arduino-cli-compile-only-verbosity)
+            (arduino-cli--verbosity))))
+
+(defun arduino-cli--compile-flags ()
+  "Add flags to CMD, if set."
+  (concat (arduino-cli--verify)
+          (arduino-cli--warnings)
+          (arduino-cli--verbosity)))
+
+(defun arduino-cli--add-flags (mode cmd)
+  "Add general and MODE flags to CMD, if set."
+  (concat cmd (pcase mode
+                ('compile (arduino-cli--compile-flags))
+                (_ (arduino-cli--general-flags)))))
+
 (defun arduino-cli--compile (cmd)
   "Run arduino-cli CMD in 'arduino-cli-compilation-mode."
-  (let ((cmd (concat "arduino-cli " cmd " " default-directory)))
-    (save-some-buffers (not compilation-ask-about-save)
-                       (lambda () default-directory))
-    (compilation-start cmd 'arduino-cli-compilation-mode)))
+  (let* ((cmd (concat "arduino-cli " cmd " " default-directory))
+         (cmd* (arduino-cli--add-flags 'compile cmd)))
+    (save-some-buffers (not compilation-ask-about-save) (lambda () default-directory))
+    (compilation-start cmd* 'arduino-cli-compilation-mode)))
 
 (defun arduino-cli--message (cmd &rest path)
   "Run arduino-cli CMD in PATH (if provided) and print as message."
   (let* ((default-directory (if path (car path) default-directory))
          (cmd (concat "arduino-cli " cmd))
-         (out (shell-command-to-string cmd)))
+         (cmd* (arduino-cli--add-flags 'mesesage cmd))
+         (out (shell-command-to-string cmd*)))
     (message out)))
 
 (defun arduino-cli--arduino? (usb-device)
