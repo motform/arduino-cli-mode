@@ -55,7 +55,7 @@
 
 ;;; Customization
 (defgroup arduino-cli nil
-  "Arduino-cli functions and settings."
+  "Arduino-cli-mode functions and settings."
   :group 'tools
   :prefix "arduino-cli-")
 
@@ -410,5 +410,5 @@
   :group 'arduino-cli
   :require 'arduino-cli)
 
-(provide 'arduino-cli)
+(provide 'arduino-cli-mode)
 ;;; arduino-cli-mode.el ends here
