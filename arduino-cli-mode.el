@@ -1,4 +1,4 @@
-;;; arduino-cli.el --- arduino-cli command wrapper -*- lexical-binding: t -*-
+;;; arduino-cli-mode.el --- Arduino-CLI command wrapper -*- lexical-binding: t -*-
 
 ;; Copyright © 2019
 
@@ -114,16 +114,14 @@
     ('quitet  " --quiet")
     ('verbose " --verbose")))
 
-;; TODO make sure this passes the correct type to the cli, it might expect an escaped string
 (defun arduino-cli--warnings ()
   "Get the current warnings level."
   (when arduino-cli-warnings
     (concat " --warnings " (symbol-name arduino-cli-warnings))))
 
-;; TODO make sure this works
 (defun arduino-cli--general-flags ()
   "Add flags to CMD, if set."
-  (concat (when (not arduino-cli-compile-only-verbosity)
+  (concat (unless arduino-cli-compile-only-verbosity
             (arduino-cli--verbosity))))
 
 (defun arduino-cli--compile-flags ()
@@ -173,8 +171,6 @@
     (arduino-cli--?map-put arduino-cli-default-fqbn 'FQBN)
     (arduino-cli--?map-put arduino-cli-default-port 'address)))
 
-;; NOTE This leaves 'boards in final map, causing
-;; insignificant, but ugly, duplication
 (defun arduino-cli--board ()
   "Get connected Arduino board."
   (let* ((usb-devices (arduino-cli--cmd-json "board list"))
@@ -187,7 +183,7 @@
           (default-board default-board)
           (t (error "ERROR: No board connected")))))
 
-;; TODO add support for compiling to known cores when no boards are connected
+;; TODO add automatic support for compiling to known cores when no boards are connected
 (defun arduino-cli--dispatch-board (boards)
   "Correctly dispatch on the amount of BOARDS connected."
   (pcase (length boards)
@@ -203,7 +199,7 @@
   "Prompt user to select an Arduino from BOARDS."
   (let* ((board-names (cl-mapcar #'arduino-cli--board-name boards))
          (selection (thread-first board-names (arduino-cli--select "Board ") (split-string "@") cadr string-trim)))
-    (car (seq-filter #'(lambda (m) (arduino-cli--selected-board? m selection)) boards))))
+    (car (seq-filter (lambda (m) (arduino-cli--selected-board? m selection)) boards))))
 
 (defun arduino-cli--cores ()
   "Get installed Arduino cores."
@@ -296,7 +292,7 @@
   (shell-command-to-string "arduino-cli core update-index")
   (arduino-cli--message "core upgrade"))
 
-;; TODO change from compilation mode into other,non blocking mini-buffer display
+;; TODO change from compilation mode into other, non blocking mini-buffer display
 (defun arduino-cli-core-install ()
   "Find and install Arduino cores."
   (interactive)
@@ -324,7 +320,7 @@
   (shell-command-to-string "arduino-cli lib update-index")
   (arduino-cli--message "lib upgrade"))
 
-;; TODO change from compilation mode into other,non blocking mini-buffer display
+;; TODO change from compilation mode into other, non blocking mini-buffer display
 (defun arduino-cli-lib-install ()
   "Find and install Arduino libraries."
   (interactive)
@@ -350,7 +346,6 @@
          (cmd (concat "sketch new " name)))
     (arduino-cli--message cmd path)))
 
-;; TODO add y-n check for when there is already a config
 (defun arduino-cli-config-init ()
   "Create a new Arduino config."
   (when (y-or-n-p "Init will override any existing config files, are you sure? ")
@@ -416,4 +411,4 @@
   :require 'arduino-cli)
 
 (provide 'arduino-cli)
-;;; arduino-cli.el ends here
+;;; arduino-cli-mode.el ends here
