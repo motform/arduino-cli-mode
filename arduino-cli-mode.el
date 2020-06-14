@@ -111,7 +111,7 @@
 (defun arduino-cli--verbosity ()
   "Get the current verbosity level."
   (pcase arduino-cli-verbosity
-    ('quitet  " --quiet")
+    ('quiet  " --quiet")
     ('verbose " --verbose")))
 
 (defun arduino-cli--warnings ()
@@ -147,12 +147,12 @@
   "Run arduino-cli CMD in PATH (if provided) and print as message."
   (let* ((default-directory (if path (car path) default-directory))
          (cmd (concat "arduino-cli " cmd))
-         (cmd* (arduino-cli--add-flags 'mesesage cmd))
+         (cmd* (arduino-cli--add-flags 'message cmd))
          (out (shell-command-to-string cmd*)))
     (message out)))
 
 (defun arduino-cli--arduino? (usb-device)
-  "Return USB-DEVICE it is an Arduino, nil otherwise."
+  "Return USB-DEVICE if it is an Arduino, nil otherwise."
   (assoc 'boards usb-device))
 
 (defun arduino-cli--selected-board? (board selected-board)
