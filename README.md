@@ -19,6 +19,7 @@ A sample configuration with [use-package](https://github.com/jwiegley/use-packag
 ```elisp
 (use-package arduino-cli-mode
   :ensure t
+  :init (add-to-list 'auto-minor-mode-alist '("\\.ino\\'" . arduino-cli-mode))
   :config (setq arduino-cli-warnings 'all
                 arduino-cli-verify t))
 ```
