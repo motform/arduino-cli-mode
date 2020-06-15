@@ -1,6 +1,7 @@
 # arduino-cli-mode
 
-`arduino-cli-mode` is an Emacs minor mode for using the excellent new [arduino command line interface](https://github.com/arduino/arduino-cli)
+`arduino-cli-mode` is an Emacs minor mode for using the excellent new 
+[arduino command line interface](https://github.com/arduino/arduino-cli)
 in an Emacs-native fashion. The mode covers the full range of
 `arduino-cli` features in an Emacs native fashion. It even 
 leverages the infinite power the GNU to provide fussy-finding
@@ -12,7 +13,15 @@ been folded into one.
 
 ## Installation
 
-Until the package is published on melpa, I recommend using [straight.el](https://github.com/raxod502/straight.el).
+The recommended way to install `arduino-cli-mode` is through [melpa](http://melpa.org/#/arduino-cli-mode). 
+A sample configuration with [use-package](https://github.com/jwiegley/use-package) could look like this:
+
+```elisp
+(use-package arduino-cli-mode
+  :ensure t
+  :config (setq arduino-cli-warnings 'all
+                arduino-cli-verify t))
+```
 
 
 ## Default boards
@@ -33,7 +42,6 @@ Using default board variables should be a bit faster, as it
 eliminates the need to shelling out and then parse JSON from `arduino-cli`.
 
 
-
 ## Customization
 
 
@@ -52,6 +60,7 @@ Once that is installed, add the following to your init:
 ```elisp
 (add-to-list 'auto-minor-mode-alist '("\\.ino\\'" . arduino-cli-mode))
 ```
+
 
 ## Keymap
 
