@@ -48,12 +48,12 @@ eliminates the need to shelling out and then parse JSON from `arduino-cli`.
 
 You can enable the major flags from `arduino-cli` using similar enumerations. 
 
-| Flag                                | Values                                       |
-| ---                                 | ---                                          |
-| `arduino-cli-verify`                | `nil` (default), `t`                         |
-| `arduino-cli-warnings`              | `nil` (default), `'default`, `'more`, `'all` |
-| `arduino-cli-vebosity`              | `nil` (default), `'quiet`, `'veborse`        |
-| `arduino-cli-compile-only-vebosity` | `nil`, `t` (default)                         |
+| Flag                                 | Values                                       |
+| ---                                  | ---                                          |
+| `arduino-cli-verify`                 | `nil` (default), `t`                         |
+| `arduino-cli-warnings`               | `nil` (default), `'default`, `'more`, `'all` |
+| `arduino-cli-verbosity`              | `nil` (default), `'quiet`, `'verbose`        |
+| `arduino-cli-compile-only-verbosity` | `nil`, `t` (default)                         |
 
 If you want to automatically enable `arduino-cli-mode` on `.ino` files, you have to get [auto-minor-mode](https://github.com/joewreschnig/auto-minor-mode).
 Once that is installed, add the following to your init:
