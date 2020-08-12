@@ -102,7 +102,7 @@
 
 (defun arduino-cli--?map-put (m v k)
   "Puts V in M under K when V, else return M."
-  (if v (map-put m k v)) m)
+  (if v (setf (map-elt m k) v)) m)
 
 (defun arduino-cli--verify ()
   "Get verify bool."
