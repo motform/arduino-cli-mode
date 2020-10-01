@@ -4,7 +4,7 @@
 
 ;; Author: Love Lagerkvist
 ;; URL: https://github.com/motform/arduino-cli-mode
-;; Version: 200697
+;; Version: 201001
 ;; Package-Requires: ((emacs "25.1"))
 ;; Created: 2019-11-16
 ;; Keywords: extensions processes arduino
@@ -381,23 +381,23 @@
   '("Arduino-CLI"
     ["New sketch" arduino-cli-new-sketch]
     "--"
-    ["Compile Project" arduino-cli-build]
-    ["Upload Project" arduino-cli-compile-and-upload]
+    ["Compile Project"            arduino-cli-compile]
+    ["Upload Project"             arduino-cli-compile-and-upload]
     ["Compile and Upload Project" arduino-cli-upload]
     "--"
-    ["Board list" arduino-cli-board-list]
-    ["Core list" arduino-cli-core-list]
-    ["Core install" arduino-cli-core-install]
+    ["Board list"     arduino-cli-board-list]
+    ["Core list"      arduino-cli-core-list]
+    ["Core install"   arduino-cli-core-install]
     ["Core uninstall" arduino-cli-core-uninstall]
     "--"
-    ["Library list" arduino-cli-lib-list]
-    ["Library install" arduino-cli-lib-install]
+    ["Library list"      arduino-cli-lib-list]
+    ["Library install"   arduino-cli-lib-install]
     ["Library uninstall" arduino-cli-lib-uninstall]
     "--"
-    ["Core list" arduino-cli-core-list]
-    ["Core install" arduino-cli-core-install]
+    ["Core list"      arduino-cli-core-list]
+    ["Core install"   arduino-cli-core-install]
     ["Core uninstall" arduino-cli-core-uninstall]
-    ["Core upgrade" arduino-cli-core-upgrade]
+    ["Core upgrade"   arduino-cli-core-upgrade]
     "--"
     ["Config init" arduino-cli-config-init]
     ["Config dump" arduino-cli-config-dump]))
