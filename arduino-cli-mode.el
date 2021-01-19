@@ -140,14 +140,14 @@
 
 (defun arduino-cli--compile (cmd)
   "Run arduino-cli CMD in 'arduino-cli-compilation-mode."
-  (let* ((cmd (concat "arduino-cli " cmd " " default-directory))
+  (let* ((cmd (concat "arduino-cli " cmd " " (shell-quote-argument default-directory)))
          (cmd* (arduino-cli--add-flags 'compile cmd)))
     (save-some-buffers (not compilation-ask-about-save) (lambda () default-directory))
     (compilation-start cmd* 'arduino-cli-compilation-mode)))
 
 (defun arduino-cli--message (cmd &rest path)
   "Run arduino-cli CMD in PATH (if provided) and print as message."
-  (let* ((default-directory (if path (car path) default-directory))
+  (let* ((default-directory (shell-quote-argument (if path (car path) (default-directory))))
          (cmd (concat "arduino-cli " cmd))
          (cmd* (arduino-cli--add-flags 'message cmd))
          (out (shell-command-to-string cmd*)))
