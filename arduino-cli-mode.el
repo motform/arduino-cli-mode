@@ -58,38 +58,39 @@
 ;;; Customization
 (defgroup arduino-cli nil
   "Arduino-cli-mode functions and settings."
-  :group 'tools
-  :prefix "arduino-cli-")
+  :group  'tools
+  :prefix "arduino-cli-"
+  :link '(url-link https://github.com/motform/arduino-cli-mode))
 
 (defcustom arduino-cli-mode-keymap-prefix (kbd "C-c C-a")
   "Arduino-cli keymap prefix."
   :group 'arduino-cli
-  :type 'string)
+  :type  'string)
 
 (defcustom arduino-cli-default-fqbn nil
   "Default fqbn to use if board selection fails."
   :group 'arduino-cli
-  :type 'string)
+  :type  'string)
 
 (defcustom arduino-cli-default-port nil
   "Default port to use if board selection fails."
   :group 'arduino-cli
-  :type 'string)
+  :type  'string)
 
 (defcustom arduino-cli-verify nil
   "Verify uploaded binary after the upload."
   :group 'arduino-cli
-  :type 'boolean)
+  :type  'boolean)
 
 (defcustom arduino-cli-warnings nil
   "Set GCC warning level, can be nil (default), 'default, 'more or 'all."
   :group 'arduino-cli
-  :type 'boolean)
+  :type  'boolean)
 
 (defcustom arduino-cli-verbosity nil
   "Set arduino-cli verbosity level, can be nil (default), 'quiet or 'verbose."
   :group 'arduino-cli
-  :type 'boolean)
+  :type  'boolean)
 
 (defcustom arduino-cli-compile-only-verbosity t
   "If true (default), only apply verbosity setting to compilation."
@@ -113,7 +114,7 @@
 (defun arduino-cli--verbosity ()
   "Get the current verbosity level."
   (pcase arduino-cli-verbosity
-    ('quiet  " --quiet")
+    ('quiet   " --quiet")
     ('verbose " --verbose")))
 
 (defun arduino-cli--warnings ()
@@ -420,8 +421,8 @@
 (define-minor-mode arduino-cli-mode
   "arduino-cli integration for Emacs."
   :lighter " arduino-cli"
-  :keymap arduino-cli-mode-map
-  :group 'arduino-cli
+  :keymap   arduino-cli-mode-map
+  :group   'arduino-cli
   :require 'arduino-cli)
 
 (provide 'arduino-cli-mode)
