@@ -1,10 +1,12 @@
 ### NOTE
 
-It appears that recent versions (> 0.10.0) have changed (i.e. broken)
-parts of the JSON API. As such, some functionallity might not work on
-recent versions. This is less a fault of the developers (which do a great job)
-and more a problem with SamVer, as it normalizes breakage. I will update
-the mode once 1.0 hits and we have API "stability".
+It appears that recent versions of the arduino-cli (> 0.10.0) has
+changed (i.e. broken) parts of the JSON API. As such, some
+functionallity might not work on these recent versions. This is less a
+fault of the developers (which overall do a great job in pushing the
+tooling forward) and more a problem with SamVer and its normaliation
+of breakage (see [Hickey](https://www.youtube.com/watch?v=oyLBGkS5ICk)).
+I will update the mode once 1.0 hits and we have API "stability".
 
 ---
 
