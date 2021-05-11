@@ -43,7 +43,7 @@
 ;; For more information on arduino-cli itself,
 ;; see https://github.com/arduino/arduino-cli
 ;;
-;; Tested against arduino-cli >= 0.10.0
+;; Tested against arduino-cli <= 0.10.0
 
 ;;; Code:
 
@@ -60,7 +60,7 @@
   "Arduino-cli-mode functions and settings."
   :group  'tools
   :prefix "arduino-cli-"
-  :link '(url-link https://github.com/motform/arduino-cli-mode))
+  :link   '(url-link https://github.com/motform/arduino-cli-mode))
 
 (defcustom arduino-cli-mode-keymap-prefix (kbd "C-c C-a")
   "Arduino-cli keymap prefix."
@@ -148,7 +148,7 @@
 
 (defun arduino-cli--message (cmd &rest path)
   "Run arduino-cli CMD in PATH (if provided) and print as message."
-  (let* ((default-directory (shell-quote-argument (if path (car path) (default-directory))))
+  (let* ((default-directory (shell-quote-argument (if path (car path) default-directory)))
          (cmd  (concat "arduino-cli " cmd))
          (cmd* (arduino-cli--add-flags 'message cmd))
          (out  (shell-command-to-string cmd*)))
@@ -367,7 +367,7 @@
 
 (defun arduino-cli-config-dump ()
   "Dump the current Arduino config."
-  (interarctive)
+  (interactive)
   (arduino-cli--message "config dump"))
 
 
@@ -419,7 +419,7 @@
 
 ;;;###autoload
 (define-minor-mode arduino-cli-mode
-  "arduino-cli integration for Emacs."
+  "Arduino-cli integration for Emacs."
   :lighter " arduino-cli"
   :keymap   arduino-cli-mode-map
   :group   'arduino-cli
