@@ -26,7 +26,7 @@ been folded into one.
 ## Installation
 
 The recommended way to install `arduino-cli-mode` is through [melpa](http://melpa.org/#/arduino-cli-mode). 
-Depending on if you use [arduino-mode](https://github.com/stardiviner/arduino-mode/tree/23ae47c9f28f559e70b790b471f20310e163a39b) 
+Depending on if you use [arduino-mode](https://melpa.org/#/arduino-mode) 
 or not, you might want to load `arduino-cli-mode` either as a hook or as a mode.
 A sample configuration with [use-package](https://github.com/jwiegley/use-package) could look like this:
 
