@@ -94,6 +94,7 @@ The following keybindings are provided out of the box.
 | Create new sketch       | `C-c C-a n` |
 | Install a Library       | `C-c C-a i` |
 | Uninstall a Library     | `C-c C-a u` |
+| Kill Arduino Connection | `C-c C-a k` |
 
 
 ## Limitations
