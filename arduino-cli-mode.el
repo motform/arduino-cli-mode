@@ -156,11 +156,11 @@
 
 (defun arduino-cli--arduino? (usb-device)
   "Return USB-DEVICE if it is an Arduino, nil otherwise."
-  (assoc 'boards usb-device))
+  (assoc 'matching_boards usb-device))
 
 (defun arduino-cli--selected-board? (board selected-board)
   "Return BOARD if it is the SELECTED-BOARD."
-  (string= (cdr (assoc 'address board))
+  (string= (arduino-cli--board-address board)
            selected-board))
 
 (defun arduino-cli--cmd-json (cmd)
@@ -171,7 +171,7 @@
 (defun arduino-cli--default-board ()
   "Get the default Arduino board, if available."
   (thread-first '()
-    (arduino-cli--?map-put arduino-cli-default-fqbn 'FQBN)
+    (arduino-cli--?map-put arduino-cli-default-fqbn 'fqbn)
     (arduino-cli--?map-put arduino-cli-default-port 'address)))
 
 (defun arduino-cli--board ()
@@ -194,11 +194,23 @@
     ((pred (< 1)) (arduino-cli--select-board boards))
     (_ nil)))
 
+(defun arduino-cli--board-fqbn (board)
+  "Get FQBN of BOARD.
+If BOARD has multiple matching_boards, the first one is used."
+  (let* ((matching-boards (cdr (assoc 'matching_boards board)))
+         (first-matching-board (aref matching-boards 0))
+         (fqbn (cdr (assoc 'fqbn first-matching-board))))
+    fqbn))
+
+(defun arduino-cli--board-address (board)
+  "Get port address of BOARD."
+  (cdr (assoc 'address (cdr (assoc 'port board)))))
+
 (defun arduino-cli--board-name (board)
   "Get name of BOARD in (name @ port) format."
   (concat (cdr (assoc 'name board))
           " @ "
-          (cdr (assoc 'address board))))
+          (arduino-cli--board-address board)))
 
 (defun arduino-cli--select-board (boards)
   "Prompt user to select an Arduino from BOARDS."
@@ -249,7 +261,7 @@
   "Compile Arduino project."
   (interactive)
   (let* ((board (arduino-cli--board))
-         (fqbn  (if-let (fqbn (cdr (assoc 'FQBN board))) fqbn
+         (fqbn  (if-let (fqbn (arduino-cli--board-fqbn board)) fqbn
                   (error "ERROR: No fqbn specified")))
          (cmd   (concat "compile --fqbn " fqbn)))
     (arduino-cli--compile cmd)))
@@ -258,10 +270,10 @@
   "Compile and upload Arduino project."
   (interactive)
   (let* ((board (arduino-cli--board))
-         (fqbn  (if-let (fqbn (cdr (assoc 'FQBN board)))
+         (fqbn  (if-let (fqbn (arduino-cli--board-fqbn board))
                     fqbn
                   (error "ERROR: No fqbn specified")))
-         (port  (if-let (port (cdr (assoc 'address board)))
+         (port  (if-let (port (arduino-cli--board-address board))
                     port
                   (error "ERROR: No port specified")))
          (cmd   (concat "compile --fqbn " fqbn " --port " port " --upload")))
@@ -271,10 +283,10 @@
   "Upload Arduino project."
   (interactive)
   (let* ((board (arduino-cli--board))
-         (fqbn  (if-let (fqbn (cdr (assoc 'FQBN board)))
+         (fqbn  (if-let (fqbn (arduino-cli--board-fqbn board))
                     fqbn
                   (error "ERROR: No fqbn specified")))
-         (port  (if-let (port (cdr (assoc 'address board)))
+         (port  (if-let (port (arduino-cli--board-address board))
                     port
                   (error "ERROR: No port specified")))
          (cmd (concat "upload --fqbn " fqbn " --port " port)))
