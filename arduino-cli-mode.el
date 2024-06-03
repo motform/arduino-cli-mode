@@ -198,7 +198,10 @@
   "Get FQBN of BOARD.
 If BOARD has multiple matching_boards, the first one is used."
   (let* ((matching-boards (cdr (assoc 'matching_boards board)))
-         (first-matching-board (aref matching-boards 0))
+         ;; TODO: does the order here make sense?
+         (first-matching-board (if matching-boards
+                                   (aref matching-boards 0)
+                                 board))
          (fqbn (cdr (assoc 'fqbn first-matching-board))))
     fqbn))
 
