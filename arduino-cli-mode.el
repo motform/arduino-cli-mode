@@ -172,7 +172,7 @@
   "Get the default Arduino board, if available."
   (thread-first '()
     (arduino-cli--?map-put arduino-cli-default-fqbn 'fqbn)
-    (arduino-cli--?map-put arduino-cli-default-port 'address)))
+    (arduino-cli--?map-put (arduino-cli--?map-put '() arduino-cli-default-port 'address) 'port)))
 
 (defun arduino-cli--board ()
   "Get connected Arduino board."
