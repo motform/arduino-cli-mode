@@ -144,7 +144,8 @@
   (let* ((cmd  (concat "arduino-cli " cmd " " (shell-quote-argument default-directory)))
          (cmd* (arduino-cli--add-flags 'compile cmd)))
     (save-some-buffers (not compilation-ask-about-save) (lambda () default-directory))
-    (compilation-start cmd* 'arduino-cli-compilation-mode)))
+    (setf arduino-cli--compilation-buffer
+          (compilation-start cmd* 'arduino-cli-compilation-mode))))
 
 (defun arduino-cli--message (cmd &rest path)
   "Run arduino-cli CMD in PATH (if provided) and print as message."
@@ -320,6 +321,19 @@ If BOARD has multiple matching_boards, the first one is used."
   (shell-command-to-string "arduino-cli core update-index")
   (arduino-cli--message "core upgrade"))
 
+(defun arduino-cli-kill-arduino-connection ()
+  "Kill any existing connection to an arduino."
+  (interactive)
+  (let ((comp-proc (get-buffer-process arduino-cli--compilation-buffer)))
+    (if comp-proc
+        (condition-case ()
+            (progn
+              (interrupt-process comp-proc)
+              (sit-for 1)
+              (delete-process comp-proc))
+          (error nil))
+      (message "No Arduino connection running!"))))
+
 ;; TODO change from compilation mode into other, non blocking mini-buffer display
 (defun arduino-cli-core-install ()
   "Find and install Arduino cores."
@@ -327,7 +341,8 @@ If BOARD has multiple matching_boards, the first one is used."
   (let* ((core (arduino-cli--search-cores))
          (cmd  (concat "arduino-cli core install " core)))
     (shell-command-to-string "arduino-cli core update-index")
-    (compilation-start cmd 'arduino-cli-compilation-mode)))
+    (setf arduino-cli--compilation-buffer
+          (compilation-start cmd 'arduino-cli-compilation-mode))))
 
 (defun arduino-cli-core-uninstall ()
   "Find and uninstall Arduino cores."
@@ -356,7 +371,8 @@ If BOARD has multiple matching_boards, the first one is used."
          (selection (arduino-cli--select libs "Library "))
          (cmd (concat "arduino-cli lib install " (shell-quote-argument selection))))
     (shell-command-to-string "arduino-cli lib update-index")
-    (compilation-start cmd 'arduino-cli-compilation-mode)))
+    (setf arduino-cli--compilation-buffer
+          (compilation-start cmd 'arduino-cli-compilation-mode))))
 
 (defun arduino-cli-lib-uninstall ()
   "Find and uninstall Arduino libraries."
@@ -396,6 +412,7 @@ If BOARD has multiple matching_boards, the first one is used."
     (define-key map (kbd "l") #'arduino-cli-board-list)
     (define-key map (kbd "i") #'arduino-cli-lib-install)
     (define-key map (kbd "u") #'arduino-cli-lib-uninstall)
+    (define-key map (kbd "k") #'arduino-cli-kill-arduino-connection)
     map)
   "Keymap for arduino-cli mode commands after `arduino-cli-mode-keymap-prefix'.")
 (fset 'arduino-cli-command-map arduino-cli-command-map)
@@ -405,6 +422,9 @@ If BOARD has multiple matching_boards, the first one is used."
     (define-key map arduino-cli-mode-keymap-prefix 'arduino-cli-command-map)
     map)
   "Keymap for arduino-cli mode.")
+
+(defvar arduino-cli--compilation-buffer nil
+  "The compilation buffer for the most recent compilation.")
 
 (easy-menu-define arduino-cli-menu arduino-cli-mode-map
   "Menu for arduino-cli."
