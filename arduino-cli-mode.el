@@ -194,8 +194,9 @@
 
 (defun arduino-cli--board ()
   "Get connected Arduino board."
-  (let* ((usb-devices     (arduino-cli--cmd-json "board list"))
-         (boards          (seq-filter #'arduino-cli--arduino? usb-devices))
+  (let* ((output          (arduino-cli--cmd-json "board list"))
+         (ports           (alist-get 'detected_ports output))
+         (boards          (seq-filter #'arduino-cli--arduino? ports))
          (boards-info     (seq-map (lambda (m) (thread-first (assoc 'boards m) cdr (seq-elt 0))) boards))
          (informed-boards (cl-mapcar (lambda (m n) (map-merge 'list m n)) boards boards-info))
          (selected-board  (arduino-cli--dispatch-board informed-boards))
