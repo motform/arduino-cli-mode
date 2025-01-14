@@ -58,6 +58,7 @@ You can enable the major flags from `arduino-cli` using similar enumerations.
 | `arduino-cli-warnings`               | `nil` (default), `'default`, `'more`, `'all` |
 | `arduino-cli-verbosity`              | `nil` (default), `'quiet`, `'verbose`        |
 | `arduino-cli-compile-only-verbosity` | `nil`, `t` (default)                         |
+| `arduino-cli-compile-color`          | `nil`, `t` (default)                         |
 
 If you want to automatically enable `arduino-cli-mode` on `.ino` files, you have to get [auto-minor-mode](https://github.com/joewreschnig/auto-minor-mode).
 Once that is installed, add the following to your init:
