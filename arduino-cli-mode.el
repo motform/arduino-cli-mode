@@ -246,22 +246,25 @@ If BOARD has multiple matching_boards, the first one is used."
 
 (defun arduino-cli--cores ()
   "Get installed Arduino cores."
-  (let* ((cores    (arduino-cli--cmd-json "core list"))
-         (id-pairs (seq-map (lambda (m) (assoc 'ID m)) cores))
+  (let* ((output   (arduino-cli--cmd-json "core list"))
+         (cores    (alist-get 'platforms output))
+         (id-pairs (seq-map (lambda (m) (assoc 'id m)) cores))
          (ids      (seq-map #'cdr id-pairs)))
     (if ids ids
       (error "ERROR: No cores installed"))))
 
 (defun arduino-cli--search-cores ()
   "Search from list of cores."
-  (let* ((cores    (arduino-cli--cmd-json "core search")) ; search without parameters gets all cores
-         (id-pairs (seq-map (lambda (m) (assoc 'ID m)) cores))
+  (let* ((output    (arduino-cli--cmd-json "core search")) ; search without parameters gets all cores
+         (cores    (alist-get 'platforms output))
+         (id-pairs (seq-map (lambda (m) (assoc 'id m)) cores))
          (ids      (seq-map #'cdr id-pairs)))
     (arduino-cli--select ids "Core ")))
 
 (defun arduino-cli--libs ()
   "Get installed Arduino libraries."
-  (let* ((libs      (arduino-cli--cmd-json "lib list"))
+  (let* ((output    (arduino-cli--cmd-json "lib list"))
+         (libs      (alist-get 'installed_libraries output))
          (lib-names (seq-map (lambda (lib) (cdr (assoc 'name (assoc 'library lib)))) libs)))
     (if lib-names lib-names
       (error "ERROR: No libraries installed"))))
