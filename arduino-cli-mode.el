@@ -261,12 +261,14 @@ If BOARD has multiple matching_boards, the first one is used."
          (ids      (seq-map #'cdr id-pairs)))
     (arduino-cli--select ids "Core ")))
 
-(defun arduino-cli--libs ()
-  "Get installed Arduino libraries."
+(defun arduino-cli--libs (&optional full)
+  "Get installed Arduino libraries.  If FULL is non-nil, return the full data objects, else return only library names."
   (let* ((output    (arduino-cli--cmd-json "lib list"))
-         (libs      (alist-get 'installed_libraries output))
-         (lib-names (seq-map (lambda (lib) (cdr (assoc 'name (assoc 'library lib)))) libs)))
-    (if lib-names lib-names
+         (libs      (alist-get 'installed_libraries output)))
+    (if libs
+        (if full
+            libs
+          (seq-map (lambda (lib) (cdr (assoc 'name (assoc 'library lib)))) libs))
       (error "ERROR: No libraries installed"))))
 
 (defun arduino-cli--search-libs ()
@@ -402,6 +404,14 @@ If BOARD has multiple matching_boards, the first one is used."
          (selection (arduino-cli--select libs "Library "))
          (cmd (concat "lib uninstall " (shell-quote-argument selection))))
     (arduino-cli--message cmd)))
+
+(defun arduino-cli-lib-browse ()
+  "Browse the install directory of an installed Arduino library."
+  (interactive)
+  (let* ((libs      (arduino-cli--libs t))
+         (dirs      (seq-map (lambda (lib) (cdr (assoc 'install_dir (cdr (assoc 'library lib))))) libs))
+         (selection (arduino-cli--select dirs "Directory ")))
+    (find-file selection)))
 
 (defun arduino-cli-new-sketch ()
   "Create a new Arduino sketch."
