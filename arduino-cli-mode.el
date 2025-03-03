@@ -408,10 +408,16 @@ If BOARD has multiple matching_boards, the first one is used."
 (defun arduino-cli-lib-browse ()
   "Browse the install directory of an installed Arduino library."
   (interactive)
-  (let* ((libs      (arduino-cli--libs t))
-         (dirs      (seq-map (lambda (lib) (cdr (assoc 'install_dir (cdr (assoc 'library lib))))) libs))
-         (selection (arduino-cli--select dirs "Directory ")))
-    (find-file selection)))
+  (let* ((output    (arduino-cli--libs t))
+         (lib-dirs  (seq-map (lambda (lib)
+                               (let ((library (cdr (assoc 'library lib))))
+                                 (cons (cdr (assoc 'name library))
+                                       (cdr (assoc 'install_dir library)))))
+                             output))
+         (selection (let ((completion-extra-properties
+                           `(:annotation-function ,(lambda (k) (format " (%s)" (alist-get k lib-dirs nil nil #'string=))))))
+                      (arduino-cli--select (seq-map #'car lib-dirs) "Library "))))
+    (find-file (alist-get selection lib-dirs nil nil #'string=))))
 
 (defun arduino-cli-new-sketch ()
   "Create a new Arduino sketch."
