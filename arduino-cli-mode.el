@@ -438,6 +438,16 @@ If BOARD has multiple matching_boards, the first one is used."
   (interactive)
   (arduino-cli--message "config dump"))
 
+(defun arduino-cli-config-directory-browse ()
+  "Browse a directory specified in the current Arduino config."
+  (interactive)
+  (let* ((output    (arduino-cli--cmd-json "config get directories"))
+         (dir-keys  (seq-map (lambda (kv) (substring-no-properties (symbol-name (car kv)))) output))
+         (selection (let ((completion-extra-properties
+                           `(:annotation-function ,(lambda (k) (format " (%s)" (alist-get (intern k) output))))))
+                      (arduino-cli--select dir-keys "Directory ")))
+         )
+    (find-file (alist-get (intern selection) output))))
 
 ;;; Minor mode
 (defvar arduino-cli-command-map
