@@ -458,7 +458,7 @@ If BOARD has multiple matching_boards, the first one is used."
     (define-key map (kbd "n") #'arduino-cli-new-sketch)
     (define-key map (kbd "l") #'arduino-cli-board-list)
     (define-key map (kbd "i") #'arduino-cli-lib-install)
-    (define-key map (kbd "u") #'arduino-cli-lib-uninstall)
+    (define-key map (kbd "U") #'arduino-cli-lib-uninstall)
     (define-key map (kbd "k") #'arduino-cli-kill-arduino-connection)
     map)
   "Keymap for arduino-cli mode commands after `arduino-cli-mode-keymap-prefix'.")
