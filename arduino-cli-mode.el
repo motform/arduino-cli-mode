@@ -67,17 +67,20 @@
   :group 'arduino-cli
   :type  'string)
 
+;; arduino-cli-default-fqbn and arduino-cli-default-port may be useful
+;; as file local variables but are not ":safe" because (if used) their
+;; values are passed to the shell as part of an arduino-cli command
+;; line.
+
 (defcustom arduino-cli-default-fqbn nil
   "Default fqbn to use if board selection fails."
   :group 'arduino-cli
-  :type  'string
-  :safe  #'stringp)
+  :type  'string)
 
 (defcustom arduino-cli-default-port nil
   "Default port to use if board selection fails."
   :group 'arduino-cli
-  :type  'string
-  :safe  #'stringp)
+  :type  'string)
 
 (defcustom arduino-cli-verify nil
   "Verify uploaded binary after the upload."
