@@ -70,12 +70,14 @@
 (defcustom arduino-cli-default-fqbn nil
   "Default fqbn to use if board selection fails."
   :group 'arduino-cli
-  :type  'string)
+  :type  'string
+  :safe  #'stringp)
 
 (defcustom arduino-cli-default-port nil
   "Default port to use if board selection fails."
   :group 'arduino-cli
-  :type  'string)
+  :type  'string
+  :safe  #'stringp)
 
 (defcustom arduino-cli-verify nil
   "Verify uploaded binary after the upload."
