@@ -32,14 +32,29 @@ A sample configuration with [use-package](https://github.com/jwiegley/use-packag
 ## Default boards
 
 By default `arduino-cli-mode` uses the `board list` command from
-`arduino-cli` to determine which board to target. This works well most
-of the time, but sometimes fails due to connectivity issues. It also
-requires the target board to be connected, which might not always be
-possible. To cover these use cases you are able to set a default board
+`arduino-cli` to determine which board to target. This works well 
+if you have a genuine Arduino board (with its unique USB Vendor ID and Product ID)
+and it is currently connected, 
+but won't work if your board is not plugged in 
+or is an unbranded board with generic USB Vendor and Product IDs.
+
+To cover these use cases you are able to set a default board
 (fqbn) and port via `arduino-cli-default-fqbn` and
-`arduino-cli-default-port` respectively. These can of course be set global via
-your `init`, but have found them to be an excellent fit for [dir](https://www.gnu.org/software/emacs/manual/html_node/elisp/Directory-Local-Variables.html) and 
-[file local variables](https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Local-Variables.html#File-Local-Variables).
+`arduino-cli-default-port` respectively. These can, of course, be set
+globally via your `init`, but you may find them to be an excellent fit
+for
+[dir](https://www.gnu.org/software/emacs/manual/html_node/elisp/Directory-Local-Variables.html)
+and [file local variables](https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Local-Variables.html#File-Local-Variables).
+For example, on a Linux system with an unbranded NodeMCU v2 compatible
+board connected to ttyUSB0,
+you could use the following line at the top of your sketch: 
+
+```cpp
+// -*- arduino-cli-default-fqbn: "esp8266:esp8266:nodemcuv2"; arduino-cli-default-port: "/dev/ttyUSB0"; -*-
+// (The rest of your sketch follows as usual.)
+```
+
+
 To get the fqbn/port information for a currently connected board, use 
 `arduino-cli-board-list`.
 
