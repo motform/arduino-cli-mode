@@ -510,7 +510,7 @@ use `arduino-cli-monitor-default-baud-rate'."
                                  arduino-cli--monitor-buffer)
                             (get-buffer-create arduino-cli-monitor-buffer-name))))
     (with-current-buffer monitor-buffer
-      (insert (format-time-string "\nStarting the monitor at %T\n\n")))
+      (insert (format-time-string "\nStarting the monitor at %T...\nTo stop it, press C-c C-c, or run arduino-cli-stop-serial-monitor.\n\n")))
     (let* ((board (arduino-cli--board))
            (port (if-let (port (arduino-cli--board-address board))
                      port
