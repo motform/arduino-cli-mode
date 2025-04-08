@@ -518,8 +518,10 @@ use `arduino-cli-monitor-default-baud-rate'."
            (async-shell-command-buffer 'confirm-kill-process)
            (shell-command-dont-erase-buffer t)
            (window (async-shell-command (format "arduino-cli monitor --port %s --config baudrate=%s"
-                                                port
-                                                (or (when monitor-baud-rate (prefix-numeric-value monitor-baud-rate)) arduino-cli-monitor-default-baud-rate))
+                                                (shell-quote-argument port)
+                                                (shell-quote-argument (format "%d"
+                                                                              (or (when monitor-baud-rate (prefix-numeric-value monitor-baud-rate))
+                                                                                  arduino-cli-monitor-default-baud-rate))))
                                         monitor-buffer)))
       (setf arduino-cli--monitor-buffer (window-buffer window)))))
 
