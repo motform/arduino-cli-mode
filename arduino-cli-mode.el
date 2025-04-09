@@ -163,7 +163,7 @@
 
 (defun arduino-cli--compile (cmd)
   "Run arduino-cli CMD in 'arduino-cli-compilation-mode."
-  (let* ((cmd  (concat "arduino-cli " cmd " " (shell-quote-argument default-directory)))
+  (let* ((cmd  (concat "arduino-cli " cmd " " (shell-quote-argument (expand-file-name default-directory))))
          (cmd* (arduino-cli--add-flags 'compile cmd)))
     (save-some-buffers (not compilation-ask-about-save) (lambda () default-directory))
     (setf arduino-cli--compilation-buffer
@@ -171,11 +171,11 @@
 
 (defun arduino-cli--message (cmd &rest path)
   "Run arduino-cli CMD in PATH (if provided) and print as message."
-  (let* ((default-directory (shell-quote-argument (if path (car path) default-directory)))
+  (let* ((default-directory (expand-file-name (if path (car path) default-directory)))
          (cmd  (concat "arduino-cli " cmd))
          (cmd* (arduino-cli--add-flags 'message cmd))
          (out  (shell-command-to-string cmd*)))
-    (message out)))
+    (message (string-trim out))))
 
 (defun arduino-cli--arduino? (usb-device)
   "Return USB-DEVICE if it is an Arduino, nil otherwise."
