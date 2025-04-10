@@ -303,6 +303,10 @@ If BOARD has multiple matching_boards, the first one is used."
 (defun arduino-cli-compile-and-upload ()
   "Compile and upload Arduino project."
   (interactive)
+  (when (arduino-cli--serial-monitor-is-active)
+    (arduino-cli-stop-serial-monitor "to upload a sketch")
+    (add-hook 'compilation-finish-functions
+              #'arduino-cli--start-serial-monitor-callback))
   (let* ((board (arduino-cli--board))
          (fqbn  (if-let (fqbn (arduino-cli--board-fqbn board))
                     fqbn
@@ -316,6 +320,10 @@ If BOARD has multiple matching_boards, the first one is used."
 (defun arduino-cli-upload ()
   "Upload Arduino project."
   (interactive)
+  (when (arduino-cli--serial-monitor-is-active)
+    (arduino-cli-stop-serial-monitor "to upload a sketch")
+    (add-hook 'compilation-finish-functions
+              #'arduino-cli--start-serial-monitor-callback))
   (let* ((board (arduino-cli--board))
          (fqbn  (if-let (fqbn (arduino-cli--board-fqbn board))
                     fqbn
@@ -457,6 +465,94 @@ If BOARD has multiple matching_boards, the first one is used."
          )
     (find-file (alist-get (intern selection) output))))
 
+(defcustom arduino-cli-monitor-buffer-name "arduino cli monitor"
+  "The name for the arduino monitor buffer."
+  :group 'arduino-cli
+  :type 'string)
+
+(defvar arduino-cli--monitor-buffer nil
+  "The buffer for the monitor.")
+
+(defvar arduino-cli-monitor-default-baud-rate 115200
+  "The default baud rate to listen to for the serial monitor.
+
+It can be overridden by passing a prefix argument to
+`#'arduino-cli-start-serial-monitor'.
+
+This must match the value set in your sketch, in a line of code that
+looks like Serial.begin(115200).
+
+The arduino will only accept certain values. For more, see
+https://www.arduino.cc/reference/it/language/functions/communication/serial/begin/")
+
+(defun arduino-cli--serial-monitor-is-active ()
+  "Return t if the monitor is active, nil otherwise."
+  (not (not (process-live-p (get-buffer-process arduino-cli--monitor-buffer)))))
+
+(defun arduino-cli--start-serial-monitor-callback (compilation-buffer process-finish-status)
+  "Start the serial monitor and remove itself from `compilation-finish-functions'.
+
+It only runs when COMPILATION-BUFFER is
+`arduino-cli--compilation-buffer', and PROCESS-FINISH-STATUS is
+\"finished\n\", which is what the arduino reports."
+  (when (and (eq compilation-buffer
+                 arduino-cli--compilation-buffer)
+             (string= process-finish-status
+                      "finished\n"))
+    (remove-hook 'compilation-finish-functions #'arduino-cli--start-serial-monitor-callback)
+    (arduino-cli-start-serial-monitor)))
+
+(defun arduino-cli-start-serial-monitor (&optional monitor-baud-rate)
+  "Start the arduino serial monitor.
+
+If MONITOR-BAUD-RATE is passed, use that as the baud rate. Otherwise,
+use `arduino-cli-monitor-default-baud-rate'."
+  (interactive "P")
+  (when (arduino-cli--serial-monitor-is-active)
+    (arduino-cli-stop-serial-monitor "to restart the serial monitor")
+    (while (arduino-cli--serial-monitor-is-active)
+      ;; arduino-cli-stop-serial-monitor calls kill-process, which
+      ;; kills the process asynchronously, so we need to wait for the
+      ;; process to actually end before restarting the monitor.
+      (sit-for 0.01)))
+  (let ((monitor-buffer (or (and (buffer-live-p arduino-cli--monitor-buffer)
+                                 arduino-cli--monitor-buffer)
+                            (get-buffer-create arduino-cli-monitor-buffer-name))))
+    (unless (eq arduino-cli-verbosity 'quiet)
+      (with-current-buffer monitor-buffer
+        (insert (format-time-string "\nStarting the monitor at %T...\nTo stop it, press C-c C-c, or run arduino-cli-stop-serial-monitor.\n\n"))))
+    (let* ((board (arduino-cli--board))
+           (port (if-let (port (arduino-cli--board-address board))
+                     port
+                   (error "ERROR: No port specified")))
+           (async-shell-command-buffer 'confirm-kill-process)
+           (shell-command-dont-erase-buffer t)
+           (window (async-shell-command (format "arduino-cli monitor --port %s --config baudrate=%s %s"
+                                                (shell-quote-argument port)
+                                                (shell-quote-argument (format "%d"
+                                                                              (or (when monitor-baud-rate (prefix-numeric-value monitor-baud-rate))
+                                                                                  arduino-cli-monitor-default-baud-rate)))
+                                                (arduino-cli--general-flags))
+                                        monitor-buffer)))
+      (setf arduino-cli--monitor-buffer (window-buffer window)))))
+
+(defun arduino-cli-stop-serial-monitor (&optional reason)
+  "Stop the arduino serial monitor.
+
+If provided, REASON is printed in a message in the buffer."
+  (interactive)
+  (let ((arduino-monitor-process (get-buffer-process arduino-cli--monitor-buffer)))
+    (when (and (bufferp arduino-cli--monitor-buffer)
+               (process-live-p arduino-monitor-process))
+      (kill-process arduino-monitor-process)
+      (unless (eq arduino-cli-verbosity 'quiet)
+        (with-current-buffer arduino-cli--monitor-buffer
+          (insert (format "\nStopped serial monitor %sat %s...\n\n"
+                          (if reason
+                              (concat reason " ")
+                            "")
+                          (format-time-string "%T"))))))))
+
 ;;; Minor mode
 (defvar arduino-cli-command-map
   (let ((map (make-sparse-keymap)))
@@ -468,6 +564,8 @@ If BOARD has multiple matching_boards, the first one is used."
     (define-key map (kbd "i") #'arduino-cli-lib-install)
     (define-key map (kbd "U") #'arduino-cli-lib-uninstall)
     (define-key map (kbd "k") #'arduino-cli-kill-arduino-connection)
+    (define-key map (kbd "m") #'arduino-cli-start-serial-monitor)
+    (define-key map (kbd "M") #'arduino-cli-stop-serial-monitor)
     map)
   "Keymap for arduino-cli mode commands after `arduino-cli-mode-keymap-prefix'.")
 (fset 'arduino-cli-command-map arduino-cli-command-map)
