@@ -170,8 +170,10 @@
           (compilation-start cmd* 'arduino-cli-compilation-mode))))
 
 (defun arduino-cli--message (cmd &rest path)
-  "Run arduino-cli CMD in PATH (if provided) and print as message."
-  (let* ((default-directory (expand-file-name (if path (car path) default-directory)))
+  "Run arduino-cli CMD in PATH (if provided) and print as message.
+If PATH is not provided, default-directory is used.
+PATH should be an absolute directory name."
+  (let* ((default-directory (if path (car path) default-directory))
          (cmd  (concat "arduino-cli " cmd))
          (cmd* (arduino-cli--add-flags 'message cmd))
          (out  (shell-command-to-string cmd*)))
@@ -428,6 +430,7 @@ If BOARD has multiple matching_boards, the first one is used."
   "Create a new Arduino sketch."
   (interactive)
   (let* ((name (read-string "Sketch name: "))
+	 ; TODO: Should we ensure that path is an absolute directory name?
          (path (read-directory-name "Sketch path: "))
          (cmd  (concat "sketch new " name)))
     (arduino-cli--message cmd path)))
