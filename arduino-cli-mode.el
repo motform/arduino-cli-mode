@@ -509,19 +509,21 @@ use `arduino-cli-monitor-default-baud-rate'."
   (let ((monitor-buffer (or (and (buffer-live-p arduino-cli--monitor-buffer)
                                  arduino-cli--monitor-buffer)
                             (get-buffer-create arduino-cli-monitor-buffer-name))))
-    (with-current-buffer monitor-buffer
-      (insert (format-time-string "\nStarting the monitor at %T...\nTo stop it, press C-c C-c, or run arduino-cli-stop-serial-monitor.\n\n")))
+    (unless (eq arduino-cli-verbosity 'quiet)
+      (with-current-buffer monitor-buffer
+        (insert (format-time-string "\nStarting the monitor at %T...\nTo stop it, press C-c C-c, or run arduino-cli-stop-serial-monitor.\n\n"))))
     (let* ((board (arduino-cli--board))
            (port (if-let (port (arduino-cli--board-address board))
                      port
                    (error "ERROR: No port specified")))
            (async-shell-command-buffer 'confirm-kill-process)
            (shell-command-dont-erase-buffer t)
-           (window (async-shell-command (format "arduino-cli monitor --port %s --config baudrate=%s"
+           (window (async-shell-command (format "arduino-cli monitor --port %s --config baudrate=%s %s"
                                                 (shell-quote-argument port)
                                                 (shell-quote-argument (format "%d"
                                                                               (or (when monitor-baud-rate (prefix-numeric-value monitor-baud-rate))
-                                                                                  arduino-cli-monitor-default-baud-rate))))
+                                                                                  arduino-cli-monitor-default-baud-rate)))
+                                                (arduino-cli--general-flags))
                                         monitor-buffer)))
       (setf arduino-cli--monitor-buffer (window-buffer window)))))
 
@@ -534,12 +536,13 @@ If provided, REASON is printed in a message in the buffer."
     (when (and (bufferp arduino-cli--monitor-buffer)
                (process-live-p arduino-monitor-process))
       (kill-process arduino-monitor-process)
-      (with-current-buffer arduino-cli--monitor-buffer
-        (insert (format "\nStopped serial monitor %sat %s...\n\n"
-                         (if reason
-                             (concat reason " ")
-                           "")
-                         (format-time-string "%T")))))))
+      (unless (eq arduino-cli-verbosity 'quiet)
+        (with-current-buffer arduino-cli--monitor-buffer
+          (insert (format "\nStopped serial monitor %sat %s...\n\n"
+                          (if reason
+                              (concat reason " ")
+                            "")
+                          (format-time-string "%T"))))))))
 
 ;;; Minor mode
 (defvar arduino-cli-command-map
