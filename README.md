@@ -99,6 +99,8 @@ The following keybindings are provided out of the box.
 | Install a Library       | `C-c C-a i` |
 | Uninstall a Library     | `C-c C-a u` |
 | Kill Arduino Connection | `C-c C-a k` |
+| Open Serial Monitor     | `C-c C-a m` |
+| Close Serial Monitor    | `C-c C-a M` |
 
 
 ## Limitations
