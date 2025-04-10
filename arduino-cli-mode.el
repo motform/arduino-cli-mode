@@ -482,15 +482,16 @@ https://www.arduino.cc/reference/it/language/functions/communication/serial/begi
   (not (not (process-live-p (get-buffer-process arduino-cli--monitor-buffer)))))
 
 (defun arduino-cli--start-serial-monitor-callback (compilation-buffer process-finish-status)
-  "Start the serial monitor, but also remove itself from `compilation-filter-hook'.
+  "Start the serial monitor and remove itself from `compilation-finish-functions'.
 
-It only runs when COMPILATION-BUFFER is `arduino-cli--compilation-buffer'."
-  (message "process-finish-status is %s" process-finish-status)
+It only runs when COMPILATION-BUFFER is
+`arduino-cli--compilation-buffer', and PROCESS-FINISH-STATUS is
+\"finished\n\", which is what the arduino reports."
   (when (and (eq compilation-buffer
                  arduino-cli--compilation-buffer)
              (string= process-finish-status
                       "finished\n"))
-    (remove-hook 'compilation-filter-hook #'arduino-cli--start-serial-monitor-callback)
+    (remove-hook 'compilation-finish-functions #'arduino-cli--start-serial-monitor-callback)
     (arduino-cli-start-serial-monitor)))
 
 (defun arduino-cli-start-serial-monitor (&optional monitor-baud-rate)
