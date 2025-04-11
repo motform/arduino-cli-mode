@@ -444,8 +444,7 @@ If BOARD has multiple matching_boards, the first one is used."
   "Create a new Arduino sketch."
   (interactive)
   (let* ((name (read-string "Sketch name: "))
-	 ; TODO: Should we ensure that path is an absolute directory name?
-         (path (read-directory-name "Sketch path: "))
+         (path (expand-file-name (read-directory-name "Sketch path: ")))
          (cmd  (concat "sketch new " name)))
     (arduino-cli--message cmd path)))
 
