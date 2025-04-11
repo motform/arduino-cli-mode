@@ -280,9 +280,8 @@ If BOARD has multiple matching_boards, the first one is used."
 
 (defun arduino-cli--search-libs ()
   "Get installed Arduino libraries."
-  (let* ((libs      (cdr (assoc 'libraries (arduino-cli--cmd-json "lib search"))))
-         (lib-names (seq-map (lambda (lib) (cdr (assoc 'name lib))) libs)))
-    (if lib-names lib-names
+  (let* ((libs      (cdr (assoc 'libraries (arduino-cli--cmd-json "lib search")))))
+    (if libs libs
       (error "ERROR: Unable to find libraries"))))
 
 (defun arduino-cli--select (xs msg)
@@ -402,11 +401,18 @@ If BOARD has multiple matching_boards, the first one is used."
   (arduino-cli--message "lib upgrade"))
 
 ;; TODO change from compilation mode into other, non blocking mini-buffer display
-(defun arduino-cli-lib-install ()
-  "Find and install Arduino libraries."
-  (interactive)
+(defun arduino-cli-lib-install (select-version-p)
+  "Find and install Arduino libraries.  With prefix arg SELECT-VERSION-P, allow selecting the library version."
+  (interactive "P")
   (let* ((libs (arduino-cli--search-libs))
-         (selection (arduino-cli--select libs "Library "))
+         (lib-names (if select-version-p
+                        (apply #'append (seq-map (lambda (lib)
+                                                   (seq-map (lambda (ver)
+                                                              (format "%s@%s" (cdr (assoc 'name lib)) ver))
+                                                            (cdr (assoc 'available_versions lib))))
+                                                 libs))
+                      (seq-map (lambda (lib) (cdr (assoc 'name lib))) libs)))
+         (selection (arduino-cli--select lib-names "Library "))
          (cmd (concat "arduino-cli lib install " (shell-quote-argument selection))))
     (shell-command-to-string "arduino-cli lib update-index")
     (setf arduino-cli--compilation-buffer
