@@ -163,19 +163,21 @@
 
 (defun arduino-cli--compile (cmd)
   "Run arduino-cli CMD in 'arduino-cli-compilation-mode."
-  (let* ((cmd  (concat "arduino-cli " cmd " " (shell-quote-argument default-directory)))
+  (let* ((cmd  (concat "arduino-cli " cmd " " (shell-quote-argument (expand-file-name default-directory))))
          (cmd* (arduino-cli--add-flags 'compile cmd)))
     (save-some-buffers (not compilation-ask-about-save) (lambda () default-directory))
     (setf arduino-cli--compilation-buffer
           (compilation-start cmd* 'arduino-cli-compilation-mode))))
 
 (defun arduino-cli--message (cmd &rest path)
-  "Run arduino-cli CMD in PATH (if provided) and print as message."
-  (let* ((default-directory (shell-quote-argument (if path (car path) default-directory)))
+  "Run arduino-cli CMD in PATH (if provided) and print as message.
+If PATH is not provided, default-directory is used.
+PATH should be an absolute directory name."
+  (let* ((default-directory (if path (car path) default-directory))
          (cmd  (concat "arduino-cli " cmd))
          (cmd* (arduino-cli--add-flags 'message cmd))
          (out  (shell-command-to-string cmd*)))
-    (message out)))
+    (message (string-trim out))))
 
 (defun arduino-cli--arduino? (usb-device)
   "Return USB-DEVICE if it is an Arduino, nil otherwise."
@@ -442,7 +444,7 @@ If BOARD has multiple matching_boards, the first one is used."
   "Create a new Arduino sketch."
   (interactive)
   (let* ((name (read-string "Sketch name: "))
-         (path (read-directory-name "Sketch path: "))
+         (path (expand-file-name (read-directory-name "Sketch path: ")))
          (cmd  (concat "sketch new " name)))
     (arduino-cli--message cmd path)))
 
