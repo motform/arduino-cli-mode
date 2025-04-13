@@ -590,8 +590,8 @@ If provided, REASON is printed in a message in the buffer."
     ["New sketch" arduino-cli-new-sketch]
     "--"
     ["Compile Project"            arduino-cli-compile]
-    ["Upload Project"             arduino-cli-compile-and-upload]
-    ["Compile and Upload Project" arduino-cli-upload]
+    ["Upload Project"             arduino-cli-upload]
+    ["Compile and Upload Project" arduino-cli-compile-and-upload]
     "--"
     ["Board list"     arduino-cli-board-list]
     ["Core list"      arduino-cli-core-list]
