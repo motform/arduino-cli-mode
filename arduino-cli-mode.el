@@ -177,7 +177,7 @@ PATH should be an absolute directory name."
          (cmd  (concat "arduino-cli " cmd))
          (cmd* (arduino-cli--add-flags 'message cmd))
          (out  (shell-command-to-string cmd*)))
-    (message (string-trim out))))
+    (message "%s" (string-trim out))))
 
 (defun arduino-cli--arduino? (usb-device)
   "Return USB-DEVICE if it is an Arduino, nil otherwise."
