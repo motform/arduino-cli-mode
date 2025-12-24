@@ -129,6 +129,11 @@ or all commands if arduino-cli-compile-only-verbosity is set to nil."
   :group 'arduino-cli
   :type 'boolean)
 
+(defcustom arduino-cli-compile-only-warnings t
+  "Non-nil (default) means only apply warnings setting to compilation."
+  :group 'arduino-cli
+  :type 'boolean)
+
 (defcustom arduino-cli-compile-color t
   "Non-nil (default) means apply ANSI colors from compilation output."
   :group 'arduino-cli
@@ -162,8 +167,9 @@ or all commands if arduino-cli-compile-only-verbosity is set to nil."
 
 (defun arduino-cli--warnings ()
   "Get the current warnings level."
-  (when arduino-cli-warnings
-    (concat " --warnings " (symbol-name arduino-cli-warnings))))
+  (concat (unless arduino-cli-compile-only-warnings
+            (when arduino-cli-warnings
+              (concat " --warnings " (symbol-name arduino-cli-warnings))))))
 
 (defun arduino-cli--compile-color ()
   "Get the current compilation color setting."
