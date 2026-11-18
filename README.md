@@ -54,6 +54,7 @@ you could use the following line at the top of your sketch:
 // (The rest of your sketch follows as usual.)
 ```
 
+It may also happen that `arduino-cli` detects a specific FQBN, but it is the wrong one. In this case you can use `arduino-cli-override-fqbn` to override it.
 
 To get the fqbn/port information for a currently connected board, use 
 `arduino-cli-board-list`.

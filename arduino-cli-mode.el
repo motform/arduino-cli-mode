@@ -84,6 +84,14 @@
 		  nil)
 	   (string :tag "Fully qualified board name")))
 
+(defcustom arduino-cli-override-fqbn nil
+  "Manually specified fqbn to override automatic board selection."
+  :group 'arduino-cli
+  :type  '(choice
+	   (const :tag "None"
+		  nil)
+	   (string :tag "Fully qualified board name")))
+
 ;; This is a string that is an "Upload port address, e.g.: COM3 or
 ;; /dev/ttyACM2" (according to arduino-cli help message).
 ;; It might be possible to validate it, but for now we just treat
@@ -250,13 +258,14 @@ PATH should be an absolute directory name."
 (defun arduino-cli--board-fqbn (board)
   "Get FQBN of BOARD.
 If BOARD has multiple matching_boards, the first one is used."
-  (let* ((matching-boards (cdr (assoc 'matching_boards board)))
-         ;; TODO: does the order here make sense?
-         (first-matching-board (if matching-boards
-                                   (aref matching-boards 0)
-                                 board))
-         (fqbn (cdr (assoc 'fqbn first-matching-board))))
-    fqbn))
+  (or arduino-cli-override-fqbn
+      (let* ((matching-boards (cdr (assoc 'matching_boards board)))
+             ;; TODO: does the order here make sense?
+             (first-matching-board (if matching-boards
+                                       (aref matching-boards 0)
+                                     board))
+             (fqbn (cdr (assoc 'fqbn first-matching-board))))
+        fqbn)))
 
 (defun arduino-cli--board-address (board)
   "Get port address of BOARD."
